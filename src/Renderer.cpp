@@ -73,9 +73,26 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
 }
 
 Renderer3D::~Renderer3D() {
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+
+    for (Object* obj : scene) 
+        delete obj;
+
+}
+
+
+// Load all objects of the scene into the Renderer
+void Renderer3D::loadScene() {
+    // For now define objects in this function will add more later on
+
+    scene.push_back(new Tetrahedron(Vec3f(2, 0, -1), 3));
+
+    Tetrahedron* t3 = new Tetrahedron(Vec3f(5, 0, 2), 2);
+    t3->Rotate(Axis::Z, 180);
+    scene.push_back(t3);
 }
 
 // Draws a point on the window
@@ -112,6 +129,13 @@ void Renderer3D::drawLine(const Vec3f& point1, const Vec3f& point2){
 
     SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
 
+}
+
+// Draws a triangle
+void Renderer3D::drawTriangle(const Triangle& tri) {
+    drawLine(tri.a, tri.b);
+    drawLine(tri.b, tri.c);
+    drawLine(tri.c, tri.a);
 }
 
 // Convert from cam coords to screen coords
@@ -151,61 +175,16 @@ Vec3f Renderer3D::screenProj(const Vec3f& point) {
 void Renderer3D::renderFrame() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
     SDL_RenderClear(renderer);
-
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
-    // drawPoint(Vec3f(1, 1, 0));
-    // drawPoint(Vec3f(-1, 1, 0));
-    // drawPoint(Vec3f(1, -1, 0));
-    // drawPoint(Vec3f(-1, -1, 0));
 
-    // drawLine(Vec3f(1, 1, 0));
-    // drawLine(Vec3f(-1, 1, 5));
-
-    // drawLine(Vec3f(1, 1, 0), Vec3f(-1, 1, 5));
-
+    // Draw a point representing the origin
     drawPoint(Vec3f());
 
-    drawIcosahedron(Vec3f(2, 1, -3), 4);
-
-    // drawLine(Vec3f(), Vec3f(-3, -3, -3));
-
-    // // Bottom face (z = –1)
-    // drawLine(Vec3f(-1, -1, -1), Vec3f( 1, -1, -1));
-    // drawLine(Vec3f( 1, -1, -1), Vec3f( 1,  1, -1));
-    // drawLine(Vec3f( 1,  1, -1), Vec3f(-1,  1, -1));
-    // drawLine(Vec3f(-1,  1, -1), Vec3f(-1, -1, -1));
-
-    // // Top face (z = +1)
-    // drawLine(Vec3f(-1, -1,  1), Vec3f( 1, -1,  1));
-    // drawLine(Vec3f( 1, -1,  1), Vec3f( 1,  1,  1));
-    // drawLine(Vec3f( 1,  1,  1), Vec3f(-1,  1,  1));
-    // drawLine(Vec3f(-1,  1,  1), Vec3f(-1, -1,  1));
-
-    // // Vertical edges
-    // drawLine(Vec3f(-1, -1, -1), Vec3f(-1, -1,  1));
-    // drawLine(Vec3f( 1, -1, -1), Vec3f( 1, -1,  1));
-    // drawLine(Vec3f( 1,  1, -1), Vec3f( 1,  1,  1));
-    // drawLine(Vec3f(-1,  1, -1), Vec3f(-1,  1,  1));
-
-    // // Bottom face (z = 2 − 1 = 1)
-    // drawLine(Vec3f(1, 1, 1), Vec3f(3, 1, 1));
-    // drawLine(Vec3f(3, 1, 1), Vec3f(3, 3, 1));
-    // drawLine(Vec3f(3, 3, 1), Vec3f(1, 3, 1));
-    // drawLine(Vec3f(1, 3, 1), Vec3f(1, 1, 1));
-
-    // // Top face (z = 2 + 1 = 3)
-    // drawLine(Vec3f(1, 1, 3), Vec3f(3, 1, 3));
-    // drawLine(Vec3f(3, 1, 3), Vec3f(3, 3, 3));
-    // drawLine(Vec3f(3, 3, 3), Vec3f(1, 3, 3));
-    // drawLine(Vec3f(1, 3, 3), Vec3f(1, 1, 3));
-
-    // // Vertical edges connecting bottom to top
-    // drawLine(Vec3f(1, 1, 1), Vec3f(1, 1, 3));
-    // drawLine(Vec3f(3, 1, 1), Vec3f(3, 1, 3));
-    // drawLine(Vec3f(3, 3, 1), Vec3f(3, 3, 3));
-    // drawLine(Vec3f(1, 3, 1), Vec3f(1, 3, 3));
-
-
+    for (Object* obj : scene) {
+        for (Triangle tri : obj->tris) {
+            drawTriangle(tri);
+        }
+    }
 
     SDL_RenderPresent(renderer);
 }
@@ -219,6 +198,7 @@ void Renderer3D::run() {
     int lastX=0, lastY=0;
 
     SDL_Event e;
+    loadScene();
 
     while (!quit) {
         while (SDL_PollEvent(&e)) {
@@ -305,7 +285,7 @@ void Renderer3D::panCam(SDL_Event* e, int* lastX, int* lastY) {
 
 void Renderer3D::drawIcosahedron(const Vec3f& center, float radius) {
     // ang is the value of sine of the angle formed from the center to any given point of the figure
-    const float ang = 1 / std::sqrt(5);
+    const float ang = static_cast<float>(1 / std::sqrt(5));
 
     // Compute starting point
     float x = radius * std::cos(std::asin(ang));

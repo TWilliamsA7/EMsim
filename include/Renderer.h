@@ -5,6 +5,7 @@
 
 #include <SDL.h>
 #include "Vec3.h"
+#include "Objects.h"
 
 // NXN refers to both unmapped and describes the number of mapped keys
 enum class Key {
@@ -67,6 +68,11 @@ class Renderer3D {
         
         Camera cam;
 
+        std::vector<Triangle> tris;
+
+        // Holds all objects of the scene
+        std::vector<Object*> scene;
+
         std::vector<bool> key_map;
 
         // Key Input Handling
@@ -88,9 +94,13 @@ class Renderer3D {
         
         // Render current frame
         void renderFrame();
-
+        
+        // Initialization
+        void loadScene();
+        
         // Draw figures
         void drawIcosahedron(const Vec3f& center, float radius);
+        void drawTriangle(const Triangle& tri);
 
 };
 

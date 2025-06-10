@@ -26,6 +26,7 @@ add_executable(EMsim
     src/main.cpp
     src/Renderer.cpp
     src/PhysicsEngine.cpp
+    src/Objects.cpp
 )
 
 # 6) Link against SDL2 (SDL2_LIBRARIES comes from find_package)
