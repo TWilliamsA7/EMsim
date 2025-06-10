@@ -100,7 +100,7 @@ class Renderer3D {
         
         // Draw figures
         void drawIcosahedron(const Vec3f& center, float radius);
-        void drawTriangle(const Triangle& tri);
+        void drawObject(const Object* obj);
 
 };
 

@@ -131,11 +131,13 @@ void Renderer3D::drawLine(const Vec3f& point1, const Vec3f& point2){
 
 }
 
-// Draws a triangle
-void Renderer3D::drawTriangle(const Triangle& tri) {
-    drawLine(tri.a, tri.b);
-    drawLine(tri.b, tri.c);
-    drawLine(tri.c, tri.a);
+// Draws an object
+void Renderer3D::drawObject(const Object* obj) {
+    for (Triangle tri : obj->tris) {
+        drawLine(obj->vertices[tri.a], obj->vertices[tri.b]);
+        drawLine(obj->vertices[tri.b], obj->vertices[tri.c]);
+        drawLine(obj->vertices[tri.c], obj->vertices[tri.a]);
+    }
 }
 
 // Convert from cam coords to screen coords
@@ -181,9 +183,7 @@ void Renderer3D::renderFrame() {
     drawPoint(Vec3f());
 
     for (Object* obj : scene) {
-        for (Triangle tri : obj->tris) {
-            drawTriangle(tri);
-        }
+        drawObject(obj);
     }
 
     SDL_RenderPresent(renderer);

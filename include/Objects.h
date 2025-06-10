@@ -7,9 +7,9 @@
 #include "Vec3.h"
 
 struct Triangle {
-    Vec3f a, b, c;
+    int a, b, c;
 
-    Triangle(Vec3f a, Vec3f b, Vec3f c) : a(a), b(b), c(c) {}
+    Triangle(int a, int b, int c) : a(a), b(b), c(c) {}
 };
 
 enum class Axis {

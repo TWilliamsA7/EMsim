@@ -70,8 +70,8 @@ Tetrahedron::Tetrahedron(Vec3f center, float radius) {
     vertices.push_back(center + Vec3f(-c, 0, b));
     vertices.push_back(center + Vec3f(0, c, b));
     
-    tris.push_back(Triangle(vertices[0], vertices[1], vertices[2]));
-    tris.push_back(Triangle(vertices[0], vertices[1], vertices[3]));
-    tris.push_back(Triangle(vertices[0], vertices[2], vertices[3]));
-    tris.push_back(Triangle(vertices[1], vertices[2], vertices[3]));     
+    tris.push_back(Triangle(0, 1, 2));
+    tris.push_back(Triangle(0, 1, 3));
+    tris.push_back(Triangle(0, 2, 3));
+    tris.push_back(Triangle(1, 2, 3));     
 }
