@@ -88,11 +88,8 @@ Renderer3D::~Renderer3D() {
 void Renderer3D::loadScene() {
     // For now define objects in this function will add more later on
 
-    scene.push_back(new Tetrahedron(Vec3f(2, 0, -1), 3));
-
-    Tetrahedron* t3 = new Tetrahedron(Vec3f(5, 0, 2), 2);
-    t3->Rotate(Axis::Z, 180);
-    scene.push_back(t3);
+    scene.push_back(new Sphere(Vec3f(), 2));
+    scene.push_back(new Sphere(Vec3f(2, 1, 4), 1));
 }
 
 // Draws a point on the window

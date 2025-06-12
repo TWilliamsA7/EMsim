@@ -2,6 +2,8 @@
 #define __OBJECTS_H__
 
 #include <vector>
+#include <unordered_map>
+#include <utility>
 #include <cmath>
 
 #include "Vec3.h"
@@ -31,7 +33,27 @@ class Object {
 class Tetrahedron : public Object {
     public:
         Tetrahedron(Vec3f center, float radius);
+};
 
+class Icosahedron : public Object {
+    public:
+        Icosahedron(Vec3f center, float radius);
+};
+
+struct PairHash {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+        return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
+    }
+};
+
+class Sphere : public Object {
+    public:
+        Sphere(Vec3f center, float radius);
+    private:
+        std::unordered_map<std::pair<int, int>, int, PairHash> midPointIndex;
+        float radius;
+
+        int getMidpoint(int i1, int i2);
 };
 
 #endif // __OBJECTS_H__
