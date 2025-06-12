@@ -157,7 +157,7 @@ int Sphere::getMidpoint(int i1, int i2) {
 
     Vec3f v1 = vertices[i1], v2 = vertices[i2];
     Vec3f mid = (v1 + v2) * 0.5f;
-    mid = mid.normalize() * radius;
+    mid = (mid - center).normalize() * radius + center;
     int newIndex = static_cast<int>(vertices.size());
     vertices.push_back(mid);
     midPointIndex[key] = newIndex;

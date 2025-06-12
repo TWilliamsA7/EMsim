@@ -88,7 +88,7 @@ Renderer3D::~Renderer3D() {
 void Renderer3D::loadScene() {
     // For now define objects in this function will add more later on
 
-    scene.push_back(new Sphere(Vec3f(), 2));
+    //scene.push_back(new Sphere(Vec3f(), 2));
     scene.push_back(new Sphere(Vec3f(2, 1, 4), 1));
 }
 
