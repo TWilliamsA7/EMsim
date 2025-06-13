@@ -58,13 +58,15 @@ void Object::Rotate(Axis axis, float angle) {
     }
 }
 
-Tetrahedron::Tetrahedron(Vec3f center, float radius) {
+Tetrahedron::Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wireframe) {
     // Computed value for regular tetrahedron
     float ang = 0.33981f;
     float b = radius * std::sin(ang);
     float c = radius * std::cos(ang);
     
     this->center = center;
+    this->color = color;
+    this->wireframe = wireframe;
     
     vertices.push_back(center + Vec3f(0, 0, radius));
     vertices.push_back(center + Vec3f(c, 0, b));
@@ -77,10 +79,12 @@ Tetrahedron::Tetrahedron(Vec3f center, float radius) {
     tris.push_back(Triangle(1, 2, 3));     
 }
 
-Icosahedron::Icosahedron(Vec3f center, float radius) {
+Icosahedron::Icosahedron(Vec3f center, float radius, SDL_Color color, bool wirerame) {
     const float ang = static_cast<float>(1 / std::sqrt(5));
 
     this->center = center;
+    this->color = color;
+    this->wireframe = wireframe;
 
     float x = radius * std::cos(std::asin(ang));
     float y = radius * ang;
@@ -122,17 +126,19 @@ Icosahedron::Icosahedron(Vec3f center, float radius) {
     tris.push_back(Triangle(11, 7, 10));
 }
 
-Sphere::Sphere(Vec3f center, float radius) {
-    Icosahedron start(center, radius);
+Sphere::Sphere(Vec3f center, float radius, SDL_Color color, bool wireframe) {
+    Icosahedron* start = new Icosahedron(center, radius, color, wireframe);
 
     this->center = center;
     this->radius = radius;
+    this->color = color;
+    this->wireframe = wireframe;
 
-    tris.assign(start.tris.begin(), start.tris.end());
-    vertices.assign(start.vertices.begin(), start.vertices.end());
+    tris.assign(start->tris.begin(), start->tris.end());
+    vertices.assign(start->vertices.begin(), start->vertices.end());
 
     std::vector<Triangle> newTris;
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         for (Triangle &tri : tris) {
             int m01 = getMidpoint(tri.a, tri.b);
             int m12 = getMidpoint(tri.b, tri.c);
@@ -146,8 +152,10 @@ Sphere::Sphere(Vec3f center, float radius) {
         tris.swap(newTris);
     }
 
+    delete start;
 }
 
+// Sphere helper function for Subdivision
 int Sphere::getMidpoint(int i1, int i2) {
 
     std::pair<int, int> key = std::minmax(i1, i2);

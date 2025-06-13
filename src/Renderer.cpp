@@ -2,7 +2,11 @@
 #include <iostream>
 #include <algorithm>
 
-// Camera Functions
+/*******************************************************************
+                        CAMERA FUNCTIONS
+********************************************************************/
+
+// Initialize Camera Settings
 Camera::Camera() {
     this->target = Vec3f();
 
@@ -17,6 +21,7 @@ Camera::Camera() {
     this->computeVectors();
 }
 
+// Return the position of the camera
 Vec3f Camera::position() const {
     float x = target.x + distance * std::cos(pitch) * std::sin(yaw);
     float y = target.y + distance * std::sin(pitch);
@@ -24,8 +29,7 @@ Vec3f Camera::position() const {
     return Vec3f(x, y, z);
 }
 
-// Recompute forward, right, up vectors of camera
-// Call before projections or panning
+// Update forward, right, up vectors of camera
 void Camera::computeVectors() {
     camPos = position();
     forward = (target - camPos).normalize();
@@ -35,15 +39,22 @@ void Camera::computeVectors() {
 }
 
 
+/*******************************************************************
+                        RENDERER FUNCTIONS
+********************************************************************/
 
+// Initialize renderer window with dimensions width x height
 Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
+    // Initialize Video
     SDL_Init(SDL_INIT_VIDEO);
 
+    // Validate correct opening
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         std::exit(EXIT_FAILURE);
     }
 
+    // Create window
     window = SDL_CreateWindow("Viewport",
                             SDL_WINDOWPOS_CENTERED, 
                             SDL_WINDOWPOS_CENTERED, 
@@ -56,6 +67,7 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
         std::exit(EXIT_FAILURE);
     }
 
+    // Create Renderer
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer) {
         std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -65,127 +77,31 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
     }
 
 
-
+    // Initialize Camera Object and Scale
     cam = Camera();
     scale = 100.0f;
-    
-    for (int i = 0; i < (int) Key::NXN; i++) key_map.push_back(false);
+
 }
 
+// Called at program termination to clean up
 Renderer3D::~Renderer3D() {
 
+    // Destroy SDL Instance
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 
+    // Deallocate dynamically allocated scene objects
     for (Object* obj : scene) 
         delete obj;
 
 }
 
 
-// Load all objects of the scene into the Renderer
-void Renderer3D::loadScene() {
-    // For now define objects in this function will add more later on
+// EXECUTION AND INITIALIZATION
 
-    //scene.push_back(new Sphere(Vec3f(), 2));
-    scene.push_back(new Sphere(Vec3f(2, 1, 4), 1));
-}
 
-// Draws a point on the window
-void Renderer3D::drawPoint(const Vec3f &point) {
-    // ProjPos projPoint = screenProj(point);
-
-    Vec3f C = screenProj(point);
-    ProjPos p = camToWorld(C);
-
-    // Only Draw if within the screen
-    if (p.x > width || p.x < 0 || p.y > height || p.y < 0) {
-        return;
-    }
-
-    SDL_RenderDrawPoint(renderer, p.x, p.y);
-}
-
-// Draws a line from point1 to point2
-void Renderer3D::drawLine(const Vec3f& point1, const Vec3f& point2){
-
-    Vec3f C1 = screenProj(point1);
-    Vec3f C2 = screenProj(point2);
-
-    // If the line is completely behind the camera
-    if (!clipAgainstCam(C1, C2)) return;
-    
-    ProjPos p1 = camToWorld(C1);
-    ProjPos p2 = camToWorld(C2);
-
-    if ((p1.x < 0 && p2.x < 0) || (p1.x > width && p2.x > width ) ||
-        (p1.y < 0 && p2.y < 0) || (p1.y > height && p2.y > height)) {
-            return;
-        }
-
-    SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
-
-}
-
-// Draws an object
-void Renderer3D::drawObject(const Object* obj) {
-    for (Triangle tri : obj->tris) {
-        drawLine(obj->vertices[tri.a], obj->vertices[tri.b]);
-        drawLine(obj->vertices[tri.b], obj->vertices[tri.c]);
-        drawLine(obj->vertices[tri.c], obj->vertices[tri.a]);
-    }
-}
-
-// Convert from cam coords to screen coords
-ProjPos Renderer3D::camToWorld(const Vec3f& C) {
-    float x_proj = (cam.focalLength / C.z) * C.x;
-    float y_proj = (cam.focalLength / C.z) * C.y;
-    int x = static_cast<int>(x_proj * scale + width * 0.5f);
-    int y = static_cast<int>(-y_proj * scale + height * 0.5f);
-    return ProjPos(x, y);
-}
-
-bool Renderer3D::clipAgainstCam(Vec3f& A, Vec3f& B) {
-    // If the line is completely behind the camera
-    if (A.z < cam.near && B.z < cam.near) return false;
-
-    // Reduce the clipped vector to the point where it is visible
-    if (A.z < cam.near) {
-        float t = (cam.near - A.z) / (B.z - A.z);
-        A = A + (B - A) * t;
-    } else if (B.z < cam.near) {
-        float t = (cam.near - B.z) / (A.z - B.z);
-        B = B + (A - B) * t;
-    }
-    return true;
-}
-
-Vec3f Renderer3D::screenProj(const Vec3f& point) {
-    // Transform into camera space
-    Vec3f toPoint = point - cam.camPos;
-    float camX = toPoint.dot(cam.right);
-    float camY = toPoint.dot(cam.up);
-    float camZ = toPoint.dot(cam.forward);  
-
-    return Vec3f(camX, camY, camZ);   
-}
-
-void Renderer3D::renderFrame() {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
-    SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
-
-    // Draw a point representing the origin
-    drawPoint(Vec3f());
-
-    for (Object* obj : scene) {
-        drawObject(obj);
-    }
-
-    SDL_RenderPresent(renderer);
-}
-
+// Public function with main execution loop
 void Renderer3D::run() {
     bool quit = false;
 
@@ -195,6 +111,8 @@ void Renderer3D::run() {
     int lastX=0, lastY=0;
 
     SDL_Event e;
+
+    // Load initial scene
     loadScene();
 
     while (!quit) {
@@ -215,11 +133,11 @@ void Renderer3D::run() {
                     break;
 
                 case SDL_MOUSEWHEEL:
+                    // Zoom In/Out
                     cam.distance *= (e.wheel.y > 0 ? 0.9f : 1.1f);
                     cam.distance = std::max(cam.distance, 0.1f);
                     break;
 
-                // On Mouse Down
                 case SDL_MOUSEBUTTONDOWN:
                     if (e.button.button == SDL_BUTTON_RIGHT) {
                         rotating = true;
@@ -233,7 +151,6 @@ void Renderer3D::run() {
                     }
                     break;
 
-                // On Mouse Up
                 case SDL_MOUSEBUTTONUP:
                     if (e.button.button == SDL_BUTTON_RIGHT)
                         rotating = false;
@@ -244,12 +161,253 @@ void Renderer3D::run() {
 
         }
 
+        // Recompute camera vectors before each frame
         cam.computeVectors();
         renderFrame();
         SDL_Delay(16);  // ~60 FPS
     }
 }
 
+// Load objects of the scene into the Renderer
+void Renderer3D::loadScene() {
+
+    SDL_Color red = {255, 40, 40, 255};
+    SDL_Color blue = {40, 40, 255, 255};
+
+    scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
+    scene.push_back(new Sphere(Vec3f(2, 1, 4), 1, blue, false));
+}
+
+// Clears the screen the draws the objects of the scene
+void Renderer3D::renderFrame() {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
+    SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
+
+    // Draw a point representing the origin
+    drawPoint(Vec3f());
+
+    for (Object* obj : scene) {
+        drawObject(obj);
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+
+// DRAW FUNCTIONS
+
+// Draws a point on the window
+void Renderer3D::drawPoint(const Vec3f &point) {
+    // Make transformations
+    Vec3f C = worldToCam(point);
+    ProjPos p = camToScreen(C);
+
+    // Only Draw if within the screen
+    if (p.x > width || p.x < 0 || p.y > height || p.y < 0) {
+        return;
+    }
+
+    SDL_RenderDrawPoint(renderer, p.x, p.y);
+}
+
+// Draws a line from point1 to point2
+void Renderer3D::drawLine(const Vec3f& point1, const Vec3f& point2){
+
+    // Transform relative to the camera
+    Vec3f C1 = worldToCam(point1);
+    Vec3f C2 = worldToCam(point2);
+
+    // If the line is completely behind the camera
+    if (!clipLineAgainstCam(C1, C2)) return;
+    
+    // Transform from camera space to screen coords
+    ProjPos p1 = camToScreen(C1);
+    ProjPos p2 = camToScreen(C2);
+
+    // Only draw if within screen bounds
+    if ((p1.x < 0 && p2.x < 0) || (p1.x > width && p2.x > width ) ||
+        (p1.y < 0 && p2.y < 0) || (p1.y > height && p2.y > height)) {
+            return;
+        }
+
+    SDL_RenderDrawLine(renderer, p1.x, p1.y, p2.x, p2.y);
+
+}
+
+// Draws an object (Wireframe or Filled)
+void Renderer3D::drawObject(const Object* obj) {
+    setDrawColor(obj->color);
+
+    if (obj->wireframe) {
+        for (Triangle tri : obj->tris) {
+            drawLine(obj->vertices[tri.a], obj->vertices[tri.b]);
+            drawLine(obj->vertices[tri.b], obj->vertices[tri.c]);
+            drawLine(obj->vertices[tri.c], obj->vertices[tri.a]);
+        }
+    } else {
+        geometryObjectFill(obj);
+    }
+}
+
+// Fill the triangles defining an object with clipping
+void Renderer3D::geometryObjectFill(const Object* obj) {
+
+    SDL_Vertex verts[3];
+    for (Triangle tri : obj->tris) {
+        Vec3f Acam = worldToCam(obj->vertices[tri.a]);
+        Vec3f Bcam = worldToCam(obj->vertices[tri.b]);
+        Vec3f Ccam = worldToCam(obj->vertices[tri.c]);
+
+        auto tris = clipAgainstNearPlane(Acam, Bcam, Ccam);
+        for (auto &t : tris) {
+            std::array<ProjPos, 3> ndc;
+            for (int i = 0; i < 3; i++)
+                ndc[i] = camToScreen(t[i]);
+
+            if (allVertsOutside(ndc)) continue;
+
+            for (int i = 0; i < 3; i++) {
+                verts[i].position = { float(ndc[i].x), float(ndc[i].y) };
+                verts[i].color = obj->color;
+                verts[i].tex_coord = {0, 0};
+            }
+    
+            SDL_RenderGeometry(renderer, nullptr, verts, 3, nullptr, 0);
+        }
+
+    }
+}
+
+// Fill helper functions
+
+// Helper function to validate triangle fill visibility
+bool Renderer3D::allVertsOutside(std::array<ProjPos, 3> ndc) {
+    bool allLeft = true, allRight = true, allBottom = true, allTop = true;
+
+    for (auto &p : ndc) {
+        allLeft &= (p.x < 0);
+        allRight &= (p.x > width);
+        allBottom &= (p.y < 0);
+        allTop &= (p.y > height);
+    }
+
+    return allLeft || allRight || allBottom || allTop;
+}
+
+// Find the point between P and Q where z = nearPlane
+static Vec3f intersectPlane(const Vec3f& P, const Vec3f&Q, float nearPlane) {
+    float t = (nearPlane - P.z) / (Q.z - P.z);
+    if (t > 1) t = 1.0f;
+    if (t < 0) t = 0.0f;
+    return P + (Q - P) * t;
+}
+
+// Clip the triangle ABC against the nearPlane defined by the camera
+// Can return 0, 1, or 2 triangles
+std::vector<std::array<Vec3f, 3>> Renderer3D::clipAgainstNearPlane(const Vec3f& A, const Vec3f& B, const Vec3f& C) {
+    struct Vtx { Vec3f p; bool inside; };
+    std::array<Vtx, 3> v = {{
+        {A, A.z >= cam.near},
+        {B, B.z >= cam.near},
+        {C, C.z >= cam.near}
+    }};
+
+    int insideCount = (int) v[0].inside + (int) v[1].inside + (int) v[2].inside;
+    std::vector<std::array<Vec3f, 3>> output;
+
+    // If the entire triangle is clipped
+    if (insideCount == 0)
+        return output;
+    else if (insideCount == 3) {
+        // No clipping has occurred
+        output.push_back({A, B, C});
+        return output;
+    }
+
+    // Helper function adding a clipped vertex between vi and vj
+    auto addIntersection = [&](int i, int j, std::vector<Vec3f>& verts) {
+        verts.push_back(intersectPlane(v[i].p, v[j].p, cam.near));
+    };
+
+    // Build list of points for the clipped polygon
+    std::vector<Vec3f> clippedVerts;
+    for (int i = 0; i < 3; i++) {
+        // ni means next i
+        int ni = (i + 1) % 3;
+        if (v[i].inside)
+            clippedVerts.push_back(v[i].p);
+        // If edge corsses the plane, add intersection
+        if (v[i].inside != v[ni].inside)
+            addIntersection(i, ni, clippedVerts);
+    }
+
+    // One Trangle
+    if (clippedVerts.size() == 3)
+        output.push_back({ clippedVerts[0], clippedVerts[1], clippedVerts[2] });
+    else if (clippedVerts.size() == 4) {
+        // Two Triangles
+        // quad: verts 0-1-2-3
+        // make two triangles: (0,1,2) and (0,2,3)
+        output.push_back({ clippedVerts[0], clippedVerts[1], clippedVerts[2] });
+        output.push_back({ clippedVerts[0], clippedVerts[2], clippedVerts[3] });
+    }
+
+    return output;
+    
+}
+
+
+
+// Helper function to set Draw Color directly
+void Renderer3D::setDrawColor(SDL_Color color) {
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+}
+
+
+// PROJECTION FUNCTIONS
+
+
+// Transform world space to camera space
+Vec3f Renderer3D::worldToCam(const Vec3f& point) {
+    Vec3f toPoint = point - cam.camPos;
+    float camX = toPoint.dot(cam.right);
+    float camY = toPoint.dot(cam.up);
+    float camZ = toPoint.dot(cam.forward);  
+
+    return Vec3f(camX, camY, camZ);   
+}
+
+// Convert from cam coords to screen coords
+ProjPos Renderer3D::camToScreen(const Vec3f& C) {
+    float x_proj = (cam.focalLength / C.z) * C.x;
+    float y_proj = (cam.focalLength / C.z) * C.y;
+    int x = static_cast<int>(x_proj * scale + width * 0.5f);
+    int y = static_cast<int>(-y_proj * scale + height * 0.5f);
+    return ProjPos(x, y);
+}
+
+// Clip a line from point A to point B if necessary
+bool Renderer3D::clipLineAgainstCam(Vec3f& A, Vec3f& B) {
+    // If the line is completely behind the camera
+    if (A.z < cam.near && B.z < cam.near) return false;
+
+    // Reduce the clipped vector to the point where it is visible
+    if (A.z < cam.near) {
+        float t = (cam.near - A.z) / (B.z - A.z);
+        A = A + (B - A) * t;
+    } else if (B.z < cam.near) {
+        float t = (cam.near - B.z) / (A.z - B.z);
+        B = B + (A - B) * t;
+    }
+    return true;
+}
+
+
+// CAMERA/RENDERER FUNCTIONS
+
+
+// Rotate the camera based on mouse motion
 void Renderer3D::rotateCam(SDL_Event* e, int* lastX, int* lastY) {
     int dx = e->motion.x - *lastX;
     int dy = e->motion.y - *lastY;
@@ -265,6 +423,7 @@ void Renderer3D::rotateCam(SDL_Event* e, int* lastX, int* lastY) {
     *lastY = e->motion.y;
 }
 
+// Move the camera along the screen based on mouse motion
 void Renderer3D::panCam(SDL_Event* e, int* lastX, int* lastY) {
     int dx = e->motion.x - *lastX;
     int dy = e->motion.y - *lastY;
@@ -280,65 +439,11 @@ void Renderer3D::panCam(SDL_Event* e, int* lastX, int* lastY) {
     *lastY = e->motion.y;
 }
 
-void Renderer3D::drawIcosahedron(const Vec3f& center, float radius) {
-    // ang is the value of sine of the angle formed from the center to any given point of the figure
-    const float ang = static_cast<float>(1 / std::sqrt(5));
 
-    // Compute starting point
-    float x = radius * std::cos(std::asin(ang));
-    float y = radius * ang;
+// INPUT CAPTURE FUNCTIONS
 
-    Vec3f startPoint(x, y, 0);
 
-    // Stores points in order of drawing (Contains Duplicate Points but Not Duplicate Lines)
-    std::vector<Vec3f> points;
-
-    // Add points in order of traversal
-    points.push_back(center + startPoint);
-    points.push_back(center + startPoint.cycle());
-    points.push_back(center + startPoint.cycle().cycle());
-    points.push_back(center + startPoint);
-    points.push_back(center + startPoint.negate(false, true, false));
-    points.push_back(center + startPoint.cycle().cycle());
-    points.push_back(center + startPoint.cycle().negate(false, true, false));
-    points.push_back(center + startPoint.negate(false, true, false));
-    points.push_back(center + startPoint.cycle().negate(false, true, true));
-    points.push_back(center + startPoint.cycle().negate(false, true, false));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, false));
-    points.push_back(center + startPoint.cycle().cycle());
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, false));
-    points.push_back(center + startPoint.cycle());
-    points.push_back(center + startPoint.cycle().negate(false, false, true));
-    points.push_back(center + startPoint);
-    points.push_back(center + startPoint.cycle().cycle().negate(false, false, true));
-    points.push_back(center + startPoint.cycle().negate(false, false, true));
-    points.push_back(center + startPoint.negate(true, false, false));
-    points.push_back(center + startPoint.cycle());
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, false));
-    points.push_back(center + startPoint.negate(true, false, false));
-    points.push_back(center + startPoint.negate(true, true, false));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, false));
-    points.push_back(center + startPoint.negate(true, true, false));
-    points.push_back(center + startPoint.cycle().negate(false, true, false));
-    points.push_back(center + startPoint.negate(true, true, false));
-    points.push_back(center + startPoint.cycle().negate(false, true, true));
-    points.push_back(center + startPoint.cycle().cycle().negate(false, false, true));
-    points.push_back(center + startPoint.negate(false, true, false));
-    points.push_back(center + startPoint.cycle().cycle().negate(false, false, true));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, true));
-    points.push_back(center + startPoint.cycle().negate(false, true, true));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, true));
-    points.push_back(center + startPoint.cycle().negate(false, false, true));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, true));
-    points.push_back(center + startPoint.negate(true, false, false));
-    points.push_back(center + startPoint.cycle().cycle().negate(true, false, true));
-    points.push_back(center + startPoint.negate(true, true, false));
-
-    for (int i = 0; i < (points.size() - 1); i++) {
-        drawLine(points[i], points[i + 1]);
-    }
-}
-
+// Capture keyboard input
 void Renderer3D::handleInput(SDL_Event *e) {
     if (e->type == SDL_KEYDOWN || e->type == SDL_KEYUP) {
         Key key = this->mapKey(e->key.keysym.sym);
@@ -352,6 +457,7 @@ void Renderer3D::handleInput(SDL_Event *e) {
     }
 }
 
+// returns an enum based on key press
 Key Renderer3D::mapKey(SDL_Keycode key) {
     switch (key)
     {

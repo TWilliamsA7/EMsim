@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "Vec3.h"
+#include <SDL.h>
 
 struct Triangle {
     int a, b, c;
@@ -21,6 +22,8 @@ enum class Axis {
 class Object {
     public:
         Vec3f center;
+        bool wireframe;
+        SDL_Color color;
 
         std::vector<Vec3f> vertices;
         std::vector<Triangle> tris;
@@ -32,12 +35,12 @@ class Object {
 
 class Tetrahedron : public Object {
     public:
-        Tetrahedron(Vec3f center, float radius);
+        Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wireframe);
 };
 
 class Icosahedron : public Object {
     public:
-        Icosahedron(Vec3f center, float radius);
+        Icosahedron(Vec3f center, float radius, SDL_Color color, bool wireframe);
 };
 
 struct PairHash {
@@ -48,7 +51,7 @@ struct PairHash {
 
 class Sphere : public Object {
     public:
-        Sphere(Vec3f center, float radius);
+        Sphere(Vec3f center, float radius, SDL_Color color, bool wireframe);
     private:
         std::unordered_map<std::pair<int, int>, int, PairHash> midPointIndex;
         float radius;

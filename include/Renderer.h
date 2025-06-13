@@ -1,6 +1,7 @@
 #ifndef __RENDERER_H__
 #define __RENDERER_H__
 
+#include <array>
 #include <vector>
 
 #include <SDL.h>
@@ -16,6 +17,7 @@ struct ProjPos {
     int x;
     int y;
 
+    ProjPos () : x(0), y(0) {}
     ProjPos (int x, int y) : x(x), y(y) {}
 };
 
@@ -66,42 +68,47 @@ class Renderer3D {
         int width, height;
         float scale;
         
-        Camera cam;
-
-        std::vector<Triangle> tris;
-
+        
         // Holds all objects of the scene
         std::vector<Object*> scene;
-
+        Camera cam;
         std::vector<bool> key_map;
 
-        // Key Input Handling
-        void handleInput(SDL_Event *e);
-        Key mapKey(SDL_Keycode key);
+        
+        // Initialization
+        void loadScene();
 
-        // Camera Functions
-        void rotateCam(SDL_Event* e, int* lastX, int* lastY);
-        void panCam(SDL_Event* e, int* lastX, int* lastY);
-        bool clipAgainstCam(Vec3f& A, Vec3f& B);
+        // Render current frame
+        void renderFrame();
 
         // Projection Functions
-        Vec3f screenProj(const Vec3f& point);
-        ProjPos camToWorld(const Vec3f& C);
+        // World Space => Camera Space => Screen Space
+        Vec3f worldToCam(const Vec3f& point);
+        ProjPos camToScreen(const Vec3f& C);
 
         // Draw functions
         void drawPoint(const Vec3f& point);
         void drawLine(const Vec3f& point1, const Vec3f& point2);
-        
-        // Render current frame
-        void renderFrame();
-        
-        // Initialization
-        void loadScene();
-        
-        // Draw figures
-        void drawIcosahedron(const Vec3f& center, float radius);
         void drawObject(const Object* obj);
 
+        // Fill functions
+        void geometryObjectFill(const Object* obj);
+        // Helper fill functions
+        std::vector<std::array<Vec3f, 3>> clipAgainstNearPlane(const Vec3f& A, const Vec3f& B, const Vec3f& C);
+        bool allVertsOutside(std::array<ProjPos, 3> ndc);
+
+        // Color helper function
+        void setDrawColor(SDL_Color color);
+
+        
+        // Camera Functions
+        void rotateCam(SDL_Event* e, int* lastX, int* lastY);
+        void panCam(SDL_Event* e, int* lastX, int* lastY);
+        bool clipLineAgainstCam(Vec3f& A, Vec3f& B);
+        
+        // Key Input Handling
+        void handleInput(SDL_Event *e);
+        Key mapKey(SDL_Keycode key);
 };
 
 
