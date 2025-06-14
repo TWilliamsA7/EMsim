@@ -79,6 +79,7 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
 
     // Initialize Camera Object and Scale
     cam = Camera();
+    lightDir = Vec3f(0, 1, 0).normalize();
     scale = 100.0f;
 
 }
@@ -326,7 +327,8 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
 
     std::sort(renderList.begin(), renderList.end(),
         [](auto &L, auto &R){ return L.depth > R.depth; });
-
+        
+    Vec3f lightDirCam = worldToCam(lightDir);
     SDL_Vertex verts[3];
     for (RenderTri tri : renderList) {
         auto tris = clipAgainstNearPlane(tri.Acam, tri.Bcam, tri.Ccam);
@@ -337,9 +339,23 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
 
             if (allVertsOutside(ndc)) continue;
 
+            // Compute face color
+            Vec3f U = t[1] - t[0];
+            Vec3f V = t[2] - t[0];
+            Vec3f N = U.cross(V).normalize();
+
+            float diff = 0.1f + (0.9f) * std::max(0.0f, N.dot(lightDirCam));
+
+            SDL_Color faceColor = {
+                Uint8(obj->color.r * diff),
+                Uint8(obj->color.g * diff),
+                Uint8(obj->color.b * diff),
+                255
+            };
+
             for (int i = 0; i < 3; i++) {
                 verts[i].position = { float(ndc[i].x), float(ndc[i].y) };
-                verts[i].color = obj->color;
+                verts[i].color = faceColor;
                 verts[i].tex_coord = {0, 0};
             }
     

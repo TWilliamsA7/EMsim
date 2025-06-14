@@ -74,7 +74,8 @@ class Renderer3D {
         Camera cam;
         std::vector<bool> key_map;
 
-        
+        Vec3f lightDir;
+
         // Initialization
         void loadScene();
 
