@@ -81,6 +81,11 @@ class Renderer3D {
         // Render current frame
         void renderFrame();
 
+        // Depth Correction Functions
+        void sortScene(int L, int R);
+        void sortSceneMerge(int L, int R, int mid);
+        bool isInFront(const Object* A, const Object* B);
+
         // Projection Functions
         // World Space => Camera Space => Screen Space
         Vec3f worldToCam(const Vec3f& point);

@@ -182,18 +182,72 @@ void Renderer3D::loadScene() {
 void Renderer3D::renderFrame() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
-
-    // Draw a point representing the origin
-    drawPoint(Vec3f());
-
+    
+    // Sort scene array by depth against camera
+    sortScene(0, scene.size() - 1);
+    
     for (Object* obj : scene) {
         drawObject(obj);
     }
+    
+    // Draw a point representing the origin
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
+    drawPoint(Vec3f());
 
     SDL_RenderPresent(renderer);
 }
 
+// Sorts objects in a scene from furthest to closest (Potentially replace with quick sort in the future)
+void Renderer3D::sortScene(int L, int R) {
+    if (L < R) {
+        int mid = (L + R) / 2;
+        sortScene(L, mid);
+        sortScene(mid + 1, R);
+        sortSceneMerge(L, R, mid);
+    }
+}
+
+// Helper functon for sortScene 
+void Renderer3D::sortSceneMerge(int L, int R, int mid) {
+
+    int sizeLeft = mid - L + 1;
+    int sizeRight = R - mid;
+
+    Object** left = (Object**) malloc(sizeof(Object*) * sizeLeft);
+    Object** right = (Object**) malloc(sizeof(Object*) * sizeRight);
+
+    for (int i = 0; i < sizeLeft; i++)
+        left[i] = scene.at(L + i);
+    
+    for (int i = 0; i < sizeRight; i++)
+        right[i] = scene.at(mid + i + 1);
+
+    int i = 0, j = 0, k = L;
+
+    while (i < sizeLeft && j < sizeRight) {
+        if (isInFront(left[i], right[j]))
+            scene.at(k++) = right[j++];
+        else
+            scene.at(k++) = left[i++];
+    }
+
+    while (i < sizeLeft)
+        scene.at(k++) = left[i++];
+    while (j < sizeRight)
+        scene.at(k++) = right[j++];
+    
+    free(left);
+    free(right);
+
+}
+
+// Returns true if A should be displayed in front of B
+bool Renderer3D::isInFront(const Object* A, const Object* B) {
+    Vec3f Acenter = worldToCam(A->center);
+    Vec3f Bcenter = worldToCam(B->center);
+
+    return (Acenter.z < Bcenter.z) ? true : false;
+}
 
 // DRAW FUNCTIONS
 
