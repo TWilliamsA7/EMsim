@@ -79,6 +79,7 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
 
     // Initialize Camera Object and Scale
     cam = Camera();
+    lightDir = Vec3f(0, 0, 10).normalize();
     scale = 100.0f;
 
 }
@@ -174,8 +175,8 @@ void Renderer3D::loadScene() {
     SDL_Color red = {255, 40, 40, 255};
     SDL_Color blue = {40, 40, 255, 255};
 
-    scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
-    scene.push_back(new Sphere(Vec3f(2, 1, 4), 1, blue, false));
+    //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
+    scene.push_back(new Sphere(Vec3f(), 1, blue, false));
 }
 
 
@@ -188,7 +189,7 @@ void Renderer3D::renderFrame() {
     SDL_RenderClear(renderer);
     
     // Sort scene array by depth against camera
-    sortScene(0, scene.size() - 1);
+    sortScene(0, static_cast<int>(scene.size() - 1));
     
     for (Object* obj : scene) {
         drawObject(obj);
@@ -311,21 +312,38 @@ void Renderer3D::drawObject(const Object* obj) {
 // Fill the triangles defining an object with clipping
 void Renderer3D::geometryObjectFill(const Object* obj) {
 
-    // Need to sort the object triangles based on camera
-    struct RenderTri { Vec3f Acam; Vec3f Bcam; Vec3f Ccam; ; float depth; };
+    size_t numVerts = obj->vertices.size();
+
+    struct RenderTri { int v[3]; Vec3f Acam; Vec3f Bcam; Vec3f Ccam; float depth; };
+    std::vector<Vec3f> vertexNormals(numVerts, Vec3f());
+    std::vector<int> amm(numVerts, 0);
 
     std::vector<RenderTri> renderList;
     for (auto &t : obj->tris) {
-        Vec3f Acam = worldToCam(obj->vertices[t.a]);
-        Vec3f Bcam = worldToCam(obj->vertices[t.b]);
-        Vec3f Ccam = worldToCam(obj->vertices[t.c]);
+        Vec3f A = obj->vertices[t.a];
+        Vec3f B = obj->vertices[t.b];
+        Vec3f C = obj->vertices[t.c];
+
+        Vec3f v = C - A;
+        Vec3f Norm = (B - A).cross(v).normalize();
+        for (int idx : {t.a, t.b, t.c}) {
+            vertexNormals[idx] = vertexNormals[idx] + Norm;
+            amm[idx]++;
+        }
+
+        Vec3f Acam = worldToCam(A);
+        Vec3f Bcam = worldToCam(B);
+        Vec3f Ccam = worldToCam(C);
 
         float z = (Acam.z + Bcam.z + Ccam.z) / 3.0f;
-        renderList.push_back({Acam, Bcam, Ccam, z});
+        renderList.push_back({{t.a, t.b, t.c}, Acam, Bcam, Ccam, z});
     }
 
+    for (size_t i = 0; i < numVerts; i++)
+        vertexNormals[i] = (vertexNormals[i] * (1 / static_cast<float>(amm[i]))).normalize();
+
     std::sort(renderList.begin(), renderList.end(),
-        [](auto &L, auto &R){ return L.depth > R.depth; });
+        [](auto &L, auto &R){ return L.depth  > R.depth; });
 
     SDL_Vertex verts[3];
     for (RenderTri tri : renderList) {
@@ -338,8 +356,19 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
             if (allVertsOutside(ndc)) continue;
 
             for (int i = 0; i < 3; i++) {
+
+                int vi = tri.v[i];
+                float diff = 0.1f + (0.9f) * std::max(0.0f, vertexNormals[vi].dot(lightDir));
+
+                SDL_Color color = {
+                    static_cast<Uint8>(obj->color.r * diff),
+                    static_cast<Uint8>(obj->color.g * diff),
+                    static_cast<Uint8>(obj->color.b * diff),
+                    255
+                };
+
                 verts[i].position = { float(ndc[i].x), float(ndc[i].y) };
-                verts[i].color = obj->color;
+                verts[i].color = color;
                 verts[i].tex_coord = {0, 0};
             }
     

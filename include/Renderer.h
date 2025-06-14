@@ -68,6 +68,7 @@ class Renderer3D {
         int width, height;
         float scale;
         
+        Vec3f lightDir;
         
         // Holds all objects of the scene
         std::vector<Object*> scene;
