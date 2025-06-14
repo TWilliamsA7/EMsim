@@ -178,6 +178,10 @@ void Renderer3D::loadScene() {
     scene.push_back(new Sphere(Vec3f(2, 1, 4), 1, blue, false));
 }
 
+
+// RENDER FUNCTIONS
+
+
 // Clears the screen the draws the objects of the scene
 void Renderer3D::renderFrame() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
@@ -307,13 +311,25 @@ void Renderer3D::drawObject(const Object* obj) {
 // Fill the triangles defining an object with clipping
 void Renderer3D::geometryObjectFill(const Object* obj) {
 
-    SDL_Vertex verts[3];
-    for (Triangle tri : obj->tris) {
-        Vec3f Acam = worldToCam(obj->vertices[tri.a]);
-        Vec3f Bcam = worldToCam(obj->vertices[tri.b]);
-        Vec3f Ccam = worldToCam(obj->vertices[tri.c]);
+    // Need to sort the object triangles based on camera
+    struct RenderTri { Vec3f Acam; Vec3f Bcam; Vec3f Ccam; ; float depth; };
 
-        auto tris = clipAgainstNearPlane(Acam, Bcam, Ccam);
+    std::vector<RenderTri> renderList;
+    for (auto &t : obj->tris) {
+        Vec3f Acam = worldToCam(obj->vertices[t.a]);
+        Vec3f Bcam = worldToCam(obj->vertices[t.b]);
+        Vec3f Ccam = worldToCam(obj->vertices[t.c]);
+
+        float z = (Acam.z + Bcam.z + Ccam.z) / 3.0f;
+        renderList.push_back({Acam, Bcam, Ccam, z});
+    }
+
+    std::sort(renderList.begin(), renderList.end(),
+        [](auto &L, auto &R){ return L.depth > R.depth; });
+
+    SDL_Vertex verts[3];
+    for (RenderTri tri : renderList) {
+        auto tris = clipAgainstNearPlane(tri.Acam, tri.Bcam, tri.Ccam);
         for (auto &t : tris) {
             std::array<ProjPos, 3> ndc;
             for (int i = 0; i < 3; i++)

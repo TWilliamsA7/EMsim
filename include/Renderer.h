@@ -81,7 +81,8 @@ class Renderer3D {
         // Render current frame
         void renderFrame();
 
-        // Depth Correction Functions
+        // Depth Consideration Functions
+        // These functions sort scene in display order based on center of objects (not perfect but it's enough)
         void sortScene(int L, int R);
         void sortSceneMerge(int L, int R, int mid);
         bool isInFront(const Object* A, const Object* B);
