@@ -164,6 +164,7 @@ void Renderer3D::run() {
 
         // Recompute camera vectors before each frame
         cam.computeVectors();
+
         renderFrame();
         SDL_Delay(16);  // ~60 FPS
     }
@@ -177,11 +178,7 @@ void Renderer3D::loadScene() {
     SDL_Color green = {40, 255, 40, 255};
 
     //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
-    scene.push_back(new Sphere(Vec3f(), 1, blue, false));
-    scene.push_back(new Sphere(Vec3f(3, 2, 2), 2, green, false));
-    scene.push_back(new Tetrahedron(Vec3f(-2, -4, -5), 2, red, false));
-    scene.push_back(new Icosahedron(Vec3f(0, 0, 6), 1, green, true));
-    scene.push_back(new Sphere(Vec3f(-4, 1, -2), 1, red, false));
+    scene.push_back(new Sphere(Vec3f(1, 1, 1), 2, red, false));
 }
 
 
@@ -375,9 +372,9 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
                 Vec3f H = (lightDir_cam + V).normalize();
                 float specular = powf(std::max(0.0f, imm.dot(H)), 16);
 
-                float ambient = 0.3f;
-                float diffWeight = 0.35f;
-                float specWeight = 0.44f;
+                float ambient = 0.28f;
+                float diffWeight = 0.27f;
+                float specWeight = 0.48f;
 
                 float diff = ambient + diffWeight * hl + specWeight * specular;
 
