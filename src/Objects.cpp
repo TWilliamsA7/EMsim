@@ -79,7 +79,7 @@ Tetrahedron::Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wiref
     tris.push_back(Triangle(1, 2, 3));     
 }
 
-Icosahedron::Icosahedron(Vec3f center, float radius, SDL_Color color, bool wirerame) {
+Icosahedron::Icosahedron(Vec3f center, float radius, SDL_Color color, bool wireframe) {
     const float ang = static_cast<float>(1 / std::sqrt(5));
 
     this->center = center;

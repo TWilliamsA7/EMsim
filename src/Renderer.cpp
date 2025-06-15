@@ -178,7 +178,7 @@ void Renderer3D::loadScene() {
     SDL_Color green = {40, 255, 40, 255};
 
     //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
-    scene.push_back(new Sphere(Vec3f(1, 1, 1), 2, red, false));
+    scene.push_back(new Icosahedron(Vec3f(), 2, red, false));
 }
 
 
@@ -477,8 +477,6 @@ std::vector<std::array<Vec3f, 3>> Renderer3D::clipAgainstNearPlane(const Vec3f& 
     return output;
     
 }
-
-
 
 // Helper function to set Draw Color directly
 void Renderer3D::setDrawColor(SDL_Color color) {
