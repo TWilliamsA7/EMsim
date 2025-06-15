@@ -165,6 +165,9 @@ void Renderer3D::run() {
         // Recompute camera vectors before each frame
         cam.computeVectors();
 
+        for (auto obj : scene)
+            obj->Translate();
+
         renderFrame();
         SDL_Delay(16);  // ~60 FPS
     }
@@ -177,8 +180,10 @@ void Renderer3D::loadScene() {
     SDL_Color blue = {40, 40, 255, 255};
     SDL_Color green = {40, 255, 40, 255};
 
-    //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
-    scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
+    Sphere* s1 = new Sphere(Vec3f(), 1, blue, false);
+    s1->velocity = Vec3f(1, 0, 0);
+    s1->acceleration = Vec3f(0, 1, 0);
+    scene.push_back(s1);
 }
 
 

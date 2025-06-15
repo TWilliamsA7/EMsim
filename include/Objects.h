@@ -9,6 +9,8 @@
 #include "Vec3.h"
 #include <SDL.h>
 
+const float PI = static_cast<float>( 4 * std::atan(1.0));
+
 struct Triangle {
     int a, b, c;
 
@@ -29,14 +31,20 @@ class Object {
         std::vector<Triangle> tris;
 
         // Mechanics
+        
+        // Stored as units / sec
         Vec3f velocity;
         Vec3f acceleration;
 
         // Stored in radians
+        Vec3f angularVelocity;
+        Vec3f angularAcceleration;
         Vec3f rotation;
 
         // Angle is in degrees
-        void Rotate(Axis axis, float angle);
+        void updateRotation(Axis axis, float angle);
+        void Rotate();
+        void Translate();
 
 };
 

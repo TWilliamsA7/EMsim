@@ -4,10 +4,9 @@
 #include <algorithm>
 
 
-void Object::Rotate(Axis axis, float angle) {
+void Object::updateRotation(Axis axis, float angle) {
 
     // Convert degrees to radians
-    const float PI = static_cast<float>( 4 * std::atan(1.0));
     angle *= (PI / 180.0f);
     float s = std::sin(angle);
     float c = std::cos(angle);
@@ -59,6 +58,26 @@ void Object::Rotate(Axis axis, float angle) {
         // Return to center point
         vert = vert + center;
     }
+}
+
+void Object::Translate() {
+
+    // Update Velocity based on acceleration
+    velocity = velocity + acceleration * (1 / 60.f);
+
+    // To account for 60 frames per second
+    Vec3f transVector = velocity * (1 / 60.f);
+
+    center = center + transVector;
+    for (Vec3f& vert : vertices)
+        vert = vert + transVector;
+
+}
+
+void Object::Rotate() {
+    angularVelocity = angularVelocity + angularAcceleration * (1 / 60.f);
+    Vec3f rotVector = angularVelocity * (1 /60.f);
+
 }
 
 Tetrahedron::Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wireframe) {
