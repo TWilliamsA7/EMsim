@@ -79,7 +79,7 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
 
     // Initialize Camera Object and Scale
     cam = Camera();
-    lightDir = Vec3f(0, 0, 10).normalize();
+    lightDir = Vec3f(0, 1, 1).normalize();
     scale = 100.0f;
 
 }
@@ -174,9 +174,14 @@ void Renderer3D::loadScene() {
 
     SDL_Color red = {255, 40, 40, 255};
     SDL_Color blue = {40, 40, 255, 255};
+    SDL_Color green = {40, 255, 40, 255};
 
     //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
     scene.push_back(new Sphere(Vec3f(), 1, blue, false));
+    scene.push_back(new Sphere(Vec3f(3, 2, 2), 2, green, false));
+    scene.push_back(new Tetrahedron(Vec3f(-2, -4, -5), 2, red, false));
+    scene.push_back(new Icosahedron(Vec3f(0, 0, 6), 1, green, true));
+    scene.push_back(new Sphere(Vec3f(-4, 1, -2), 1, red, false));
 }
 
 
@@ -345,6 +350,8 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
     std::sort(renderList.begin(), renderList.end(),
         [](auto &L, auto &R){ return L.depth  > R.depth; });
 
+    Vec3f lightDir_cam = worldToCam(lightDir).normalize();
+
     SDL_Vertex verts[3];
     for (RenderTri tri : renderList) {
         auto tris = clipAgainstNearPlane(tri.Acam, tri.Bcam, tri.Ccam);
@@ -358,7 +365,25 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
             for (int i = 0; i < 3; i++) {
 
                 int vi = tri.v[i];
-                float diff = 0.1f + (0.9f) * std::max(0.0f, vertexNormals[vi].dot(lightDir));
+                Vec3f imm = worldToCam(vertexNormals[vi]).normalize();
+
+                // Testing zone for shading
+
+                float hl = 0.5f * imm.dot(lightDir_cam) + 0.5f;
+
+                Vec3f V = (cam.camPos - t[i]).normalize();
+                Vec3f H = (lightDir_cam + V).normalize();
+                float specular = powf(std::max(0.0f, imm.dot(H)), 16);
+
+                float ambient = 0.3f;
+                float diffWeight = 0.35f;
+                float specWeight = 0.44f;
+
+                float diff = ambient + diffWeight * hl + specWeight * specular;
+
+                //float diff = 0.4f + 0.3f * std::max(0.0f, imm.dot(lightDir_cam));
+                diff = std::min(1.0f, diff);
+                if (diff < 0) diff = 0.0f;
 
                 SDL_Color color = {
                     static_cast<Uint8>(obj->color.r * diff),
