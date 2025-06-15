@@ -17,10 +17,6 @@ struct Triangle {
     Triangle(int a, int b, int c) : a(a), b(b), c(c) {}
 };
 
-enum class Axis {
-    X, Y, Z
-};
-
 class Object {
     public:
         Vec3f center;
@@ -41,8 +37,7 @@ class Object {
         Vec3f angularAcceleration;
         Vec3f rotation;
 
-        // Angle is in degrees
-        void updateRotation(Axis axis, float angle);
+        void updateRotation(Vec3f rot);
         void Rotate();
         void Translate();
 

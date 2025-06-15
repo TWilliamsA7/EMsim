@@ -1,64 +1,41 @@
 #include "Objects.h"
+#include "Matrix3.h"
 
 #include <iostream>
 #include <algorithm>
 
+void Object::updateRotation(Vec3f rot) {
 
-void Object::updateRotation(Axis axis, float angle) {
+    rotation = rotation + rot;
+    if (rotation.x > 2 * PI) rotation.x -= 2 * PI;
+    if (rotation.y > 2 * PI) rotation.y -= 2 * PI;
+    if (rotation.z > 2 * PI) rotation.z -= 2 * PI;
 
-    // Convert degrees to radians
-    angle *= (PI / 180.0f);
-    float s = std::sin(angle);
-    float c = std::cos(angle);
+    float c, s;
+    c = std::cos(rot.x);
+    s = std::sin(rot.x);
+    std::array<float, 9> xVal = {1, 0, 0, 0, c, -s, 0, s, c};
+    Matrix3 rotMatX = Matrix3(xVal);
+    c = std::cos(rot.y);
+    s = std::sin(rot.y);
+    std::array<float, 9> yVal = {c , 0, s, 0, 1, 0, -s, 0, c};
+    Matrix3 rotMatY = Matrix3(yVal);
+    c = std::cos(rot.z);
+    s = std::sin(rot.z);
+    std::array<float, 9> zVal = {c, -s, 0, s, c, 0, 0, 0, 1};
+    Matrix3 rotMatZ = Matrix3(zVal);
 
-    float rotMatrix[3][3];
-
-    switch (axis) {
-        // X-axis
-        case Axis::X:
-            rotation.x += angle;
-            if (rotation.x > 2 * PI) rotation.x -= 2 * PI;
-            rotMatrix[0][0] = 1; rotMatrix[0][1] = 0; rotMatrix[0][2] = 0;
-            rotMatrix[1][0] = 0; rotMatrix[1][1] = c; rotMatrix[1][2] = -s;
-            rotMatrix[2][0] = 0; rotMatrix[2][1] = s; rotMatrix[2][2] = c;
-            break;
-
-        // Y-axis
-        case Axis::Y:
-            rotation.y += angle;
-            if (rotation.y > 2 * PI) rotation.y -= 2 * PI;
-            rotMatrix[0][0] = c; rotMatrix[0][1] = 0; rotMatrix[0][2] = s;
-            rotMatrix[1][0] = 0; rotMatrix[1][1] = 1; rotMatrix[1][2] = 0;
-            rotMatrix[2][0] = -s; rotMatrix[2][1] = 0; rotMatrix[2][2] = c;
-            break;
-
-        // Z-axis
-        case Axis::Z:
-            rotation.z += angle;
-            if (rotation.z > 2 * PI) rotation.z -= 2 * PI;
-            rotMatrix[0][0] = c; rotMatrix[0][1] = -s; rotMatrix[0][2] = 0;
-            rotMatrix[1][0] = s; rotMatrix[1][1] = c; rotMatrix[1][2] = 0;
-            rotMatrix[2][0] = 0; rotMatrix[2][1] = 0; rotMatrix[2][2] = 1;
-            break;
-    }
+    Matrix3 rotMat = rotMatY * rotMatX * rotMatZ;
 
     for (Vec3f& vert : vertices) {
-
-        // Move to origin for rotation
         vert = vert - center;
-        
-        float ox = vert.x;
-        float oy = vert.y;
-        float oz = vert.z;
-        // Multiply by the rotation matix
-        vert.x = ox * rotMatrix[0][0] + oy * rotMatrix[1][0] + oz * rotMatrix[2][0];
-        vert.y = ox * rotMatrix[0][1] + oy * rotMatrix[1][1] + oz * rotMatrix[2][1];
-        vert.z = ox * rotMatrix[0][2] + oy * rotMatrix[1][2] + oz * rotMatrix[2][2];
-
-        // Return to center point
+        vert = rotMat * vert;
         vert = vert + center;
     }
+
 }
+
+
 
 void Object::Translate() {
 
@@ -77,7 +54,7 @@ void Object::Translate() {
 void Object::Rotate() {
     angularVelocity = angularVelocity + angularAcceleration * (1 / 60.f);
     Vec3f rotVector = angularVelocity * (1 /60.f);
-
+    updateRotation(rotVector);
 }
 
 Tetrahedron::Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wireframe) {
