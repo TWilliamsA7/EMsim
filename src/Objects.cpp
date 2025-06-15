@@ -3,7 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
-// Needs to affect the triangles too 
+
 void Object::Rotate(Axis axis, float angle) {
 
     // Convert degrees to radians
@@ -17,7 +17,8 @@ void Object::Rotate(Axis axis, float angle) {
     switch (axis) {
         // X-axis
         case Axis::X:
-
+            rotation.x += angle;
+            if (rotation.x > 2 * PI) rotation.x -= 2 * PI;
             rotMatrix[0][0] = 1; rotMatrix[0][1] = 0; rotMatrix[0][2] = 0;
             rotMatrix[1][0] = 0; rotMatrix[1][1] = c; rotMatrix[1][2] = -s;
             rotMatrix[2][0] = 0; rotMatrix[2][1] = s; rotMatrix[2][2] = c;
@@ -25,7 +26,8 @@ void Object::Rotate(Axis axis, float angle) {
 
         // Y-axis
         case Axis::Y:
-
+            rotation.y += angle;
+            if (rotation.y > 2 * PI) rotation.y -= 2 * PI;
             rotMatrix[0][0] = c; rotMatrix[0][1] = 0; rotMatrix[0][2] = s;
             rotMatrix[1][0] = 0; rotMatrix[1][1] = 1; rotMatrix[1][2] = 0;
             rotMatrix[2][0] = -s; rotMatrix[2][1] = 0; rotMatrix[2][2] = c;
@@ -33,7 +35,8 @@ void Object::Rotate(Axis axis, float angle) {
 
         // Z-axis
         case Axis::Z:
-
+            rotation.z += angle;
+            if (rotation.z > 2 * PI) rotation.z -= 2 * PI;
             rotMatrix[0][0] = c; rotMatrix[0][1] = -s; rotMatrix[0][2] = 0;
             rotMatrix[1][0] = s; rotMatrix[1][1] = c; rotMatrix[1][2] = 0;
             rotMatrix[2][0] = 0; rotMatrix[2][1] = 0; rotMatrix[2][2] = 1;
@@ -69,9 +72,9 @@ Tetrahedron::Tetrahedron(Vec3f center, float radius, SDL_Color color, bool wiref
     this->wireframe = wireframe;
     
     vertices.push_back(center + Vec3f(0, 0, radius));
-    vertices.push_back(center + Vec3f(c, 0, b));
-    vertices.push_back(center + Vec3f(-c, 0, b));
-    vertices.push_back(center + Vec3f(0, c, b));
+    vertices.push_back(center + Vec3f(c, 0, -b));
+    vertices.push_back(center + Vec3f(-c, 0, -b));
+    vertices.push_back(center + Vec3f(0, c, -b));
     
     tris.push_back(Triangle(0, 1, 2));
     tris.push_back(Triangle(0, 1, 3));

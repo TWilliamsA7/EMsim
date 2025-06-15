@@ -178,7 +178,7 @@ void Renderer3D::loadScene() {
     SDL_Color green = {40, 255, 40, 255};
 
     //scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
-    scene.push_back(new Icosahedron(Vec3f(), 2, red, false));
+    scene.push_back(new Tetrahedron(Vec3f(), 2, red, false));
 }
 
 

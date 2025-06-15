@@ -28,6 +28,13 @@ class Object {
         std::vector<Vec3f> vertices;
         std::vector<Triangle> tris;
 
+        // Mechanics
+        Vec3f velocity;
+        Vec3f acceleration;
+
+        // Stored in radians
+        Vec3f rotation;
+
         // Angle is in degrees
         void Rotate(Axis axis, float angle);
 
