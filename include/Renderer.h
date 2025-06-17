@@ -6,6 +6,7 @@
 
 #include <SDL.h>
 #include "Vec3.h"
+#include "PhysicsEngine.h"
 #include "Objects.h"
 
 // NXN refers to both unmapped and describes the number of mapped keys
@@ -71,7 +72,7 @@ class Renderer3D {
         Vec3f lightDir;
         
         // Holds all objects of the scene
-        std::vector<Object*> scene;
+        std::vector<PhysicsObject*> scene;
         Camera cam;
         std::vector<bool> key_map;
 

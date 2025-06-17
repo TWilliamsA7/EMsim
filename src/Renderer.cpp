@@ -93,7 +93,7 @@ Renderer3D::~Renderer3D() {
     SDL_Quit();
 
     // Deallocate dynamically allocated scene objects
-    for (Object* obj : scene) 
+    for (PhysicsObject* obj : scene) 
         delete obj;
 
 }
@@ -182,8 +182,7 @@ void Renderer3D::loadScene() {
     SDL_Color blue = {40, 40, 255, 255};
     SDL_Color green = {40, 255, 40, 255};
 
-    Sphere* s1 = new Sphere(Vec3f(), 1, blue, false);
-    s1->velocity = Vec3f(1, -1, 0.5f);
+    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(), 1, blue, false));
     s1->angularVelocity = Vec3f(0, 0.5f, 1);
     scene.push_back(s1);
 }
@@ -200,8 +199,8 @@ void Renderer3D::renderFrame() {
     // Sort scene array by depth against camera
     sortScene(0, static_cast<int>(scene.size() - 1));
     
-    for (Object* obj : scene) {
-        drawObject(obj);
+    for (PhysicsObject* Pobj : scene) {
+        drawObject(Pobj->obj);
     }
     
     // Draw a point representing the origin
@@ -227,8 +226,8 @@ void Renderer3D::sortSceneMerge(int L, int R, int mid) {
     int sizeLeft = mid - L + 1;
     int sizeRight = R - mid;
 
-    Object** left = (Object**) malloc(sizeof(Object*) * sizeLeft);
-    Object** right = (Object**) malloc(sizeof(Object*) * sizeRight);
+    PhysicsObject** left = (PhysicsObject**) malloc(sizeof(PhysicsObject*) * sizeLeft);
+    PhysicsObject** right = (PhysicsObject**) malloc(sizeof(PhysicsObject*) * sizeRight);
 
     for (int i = 0; i < sizeLeft; i++)
         left[i] = scene.at(L + i);
@@ -239,7 +238,7 @@ void Renderer3D::sortSceneMerge(int L, int R, int mid) {
     int i = 0, j = 0, k = L;
 
     while (i < sizeLeft && j < sizeRight) {
-        if (isInFront(left[i], right[j]))
+        if (isInFront(left[i]->obj, right[j]->obj))
             scene.at(k++) = right[j++];
         else
             scene.at(k++) = left[i++];
