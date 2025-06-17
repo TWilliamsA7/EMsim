@@ -96,6 +96,7 @@ class Renderer3D {
         // Draw functions
         void drawPoint(const Vec3f& point);
         void drawLine(const Vec3f& point1, const Vec3f& point2);
+        void drawCrosshair();
         void drawObject(const Object* obj);
 
         // Fill functions

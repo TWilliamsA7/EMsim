@@ -206,7 +206,7 @@ void Renderer3D::renderFrame() {
     
     // Draw a point representing the origin
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
-    drawPoint(Vec3f());
+    drawCrosshair();
 
     SDL_RenderPresent(renderer);
 }
@@ -316,6 +316,12 @@ void Renderer3D::drawObject(const Object* obj) {
     } else {
         geometryObjectFill(obj);
     }
+}
+
+void Renderer3D::drawCrosshair() {
+    drawLine(cam.target - Vec3f(0.2f, 0, 0), cam.target + Vec3f(0.2f, 0, 0));
+    drawLine(cam.target - Vec3f(0, 0.2f, 0), cam.target + Vec3f(0, 0.2f, 0));
+    drawLine(cam.target - Vec3f(0, 0, 0.2f), cam.target + Vec3f(0, 0, 0.2f));
 }
 
 // Fill the triangles defining an object with clipping
