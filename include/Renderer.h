@@ -76,6 +76,8 @@ class Renderer3D {
         Camera cam;
         std::vector<bool> key_map;
 
+        // Physics Handler
+        PhysicsEngine phyeng;
         
         // Initialization
         void loadScene();

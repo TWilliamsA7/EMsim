@@ -15,7 +15,7 @@ Camera::Camera() {
     this->pitch = 0.0f;
     this->rotateSpeed = 0.005f;
     this->panSpeed = 0.01f;
-    this->focalLength = 2.0f;
+    this->focalLength = 4.0f;
     this->near = 0.1f;
 
     this->computeVectors();
@@ -81,7 +81,6 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
     cam = Camera();
     lightDir = Vec3f(0, 1, 1).normalize();
     scale = 100.0f;
-
 }
 
 // Called at program termination to clean up
@@ -110,6 +109,8 @@ void Renderer3D::run() {
     bool rotating = false;
     bool panning = false;
     int lastX=0, lastY=0;
+    float simTime = 0.0f;
+    float dt = 1 / 60.0f;
 
     SDL_Event e;
 
@@ -165,11 +166,8 @@ void Renderer3D::run() {
         // Recompute camera vectors before each frame
         cam.computeVectors();
 
-        for (auto obj : scene) {
-            obj->Rotate();
-            obj->Translate();
-        }
-
+        phyeng.integrateForward(scene, simTime, dt);
+        simTime += dt;
         renderFrame();
         SDL_Delay(16);  // ~60 FPS
     }
@@ -182,9 +180,12 @@ void Renderer3D::loadScene() {
     SDL_Color blue = {40, 40, 255, 255};
     SDL_Color green = {40, 255, 40, 255};
 
-    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(), 1, blue, false));
-    s1->angularVelocity = Vec3f(0, 0.5f, 1);
+    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(1, 0, 0), 1, red, false), 1, 5e-5);
+    PhysicsObject* s2 = new PhysicsObject(new Sphere(Vec3f(-1, 0, 0), 1, red, false), 1, 5e-5);
+    PhysicsObject* s3 = new PhysicsObject(new Sphere(Vec3f(0, 3, 0), 1, blue, false), 1, -2e-5);
     scene.push_back(s1);
+    scene.push_back(s2);
+    scene.push_back(s3);
 }
 
 
