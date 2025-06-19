@@ -8,9 +8,9 @@ PhysicsObject::PhysicsObject(Object* o, float mass, float charge) {
     this->charge = charge;
 }
 
-void PhysicsObject::Rotate() {
-    angularVelocity = angularVelocity + angularAcceleration * (1 / 60.f);
-    Vec3f rotVector = angularVelocity * (1 /60.f);
+void PhysicsObject::Rotate(float dt) {
+    angularVelocity = angularVelocity + angularAcceleration * dt;
+    Vec3f rotVector = angularVelocity * dt;
     updateRotation(rotVector);
 }
 
@@ -45,18 +45,9 @@ void PhysicsObject::updateRotation(Vec3f rot) {
 
 }
 
-void PhysicsObject::Translate() {
-
-    // Update Velocity based on acceleration
-    velocity = velocity + acceleration * (1 / 60.f);
-
-    // To account for 60 frames per second
-    Vec3f transVector = velocity * (1 / 60.f);
-
-    obj->center = obj->center + transVector;
-    for (Vec3f& vert : obj->vertices)
-        vert = vert + transVector;
-
+void PhysicsEngine::eulerRotate(const std::vector<PhysicsObject*> scene, float dt) {
+    for (auto Pobj : scene)
+        Pobj->Rotate(dt);
 }
 
 void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, float t, float dt) {
@@ -136,12 +127,21 @@ Vec3f PhysicsEngine::computeForce(const std::vector<PhysicsObject*> scene, int i
     for (int j = 0; j < N; j++) {
         if (i == j) continue;
         force = force + computeColoumbForce(scene[i], scene[j]);
+        force = force + computeGravitationalForce(scene[i], scene[j]);
     }
     return force;
 }
 
 Vec3f PhysicsEngine::computeColoumbForce(const PhysicsObject* target, const PhysicsObject* emitter) {
     float scale = ColoumbConstant * target->charge * emitter->charge;
+    Vec3f r = target->obj->center - emitter->obj->center;
+    float dist = r.magnitude();
+    scale /= dist * dist * dist;
+    return r * scale;
+}
+
+Vec3f PhysicsEngine::computeGravitationalForce(const PhysicsObject* target, const PhysicsObject* emitter) {
+    float scale = -GravitationalConstant * target->mass * emitter->mass;
     Vec3f r = target->obj->center - emitter->obj->center;
     float dist = r.magnitude();
     scale /= dist * dist * dist;

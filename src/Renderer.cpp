@@ -160,13 +160,13 @@ void Renderer3D::run() {
                         panning = false;
                     break;
             }
-
         }
 
         // Recompute camera vectors before each frame
         cam.computeVectors();
 
         phyeng.integrateForward(scene, simTime, dt);
+        phyeng.eulerRotate(scene, dt);
         simTime += dt;
         renderFrame();
         SDL_Delay(16);  // ~60 FPS
@@ -180,12 +180,12 @@ void Renderer3D::loadScene() {
     SDL_Color blue = {40, 40, 255, 255};
     SDL_Color green = {40, 255, 40, 255};
 
-    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(1, 0, 0), 1, red, false), 1, 5e-5);
-    PhysicsObject* s2 = new PhysicsObject(new Sphere(Vec3f(-1, 0, 0), 1, red, false), 1, 5e-5);
-    PhysicsObject* s3 = new PhysicsObject(new Sphere(Vec3f(0, 3, 0), 1, blue, false), 1, -2e-5);
+    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(5, 0, 0), 1, red, false), 1e12, 0);
+    PhysicsObject* s2 = new PhysicsObject(new Sphere(Vec3f(-5, 0, 0), 1, green, false), 1e10, 0);
+    s2->velocity = Vec3f(-1, 0, 0);
+
     scene.push_back(s1);
     scene.push_back(s2);
-    scene.push_back(s3);
 }
 
 

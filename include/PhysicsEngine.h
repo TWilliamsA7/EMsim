@@ -5,7 +5,7 @@
 
 const float EpsilonNaught = 8.854e-12;
 const float ColoumbConstant = 1 / (4 * PI * EpsilonNaught);
-
+const float GravitationalConstant = 6.6743e-11;
 
 class PhysicsObject {
     public:
@@ -20,22 +20,20 @@ class PhysicsObject {
     Vec3f angularAcceleration;
     Vec3f rotation;
     
-    // Force being felt by the object
-    Vec3f force;
     
     PhysicsObject(Object* o, float mass, float charge);
     
-    void Rotate();
-    void updateRotation(Vec3f rot);
-    void Translate();
+    void Rotate(float dt);
+
+    private: 
+        void updateRotation(Vec3f rot);
     
-    
-    // Used for integrating for positon and velocity
 };
 
 class PhysicsEngine {
     public:
         void integrateForward(const std::vector<PhysicsObject*> scene, float t, float dt);
+        void eulerRotate(const std::vector<PhysicsObject*> scene, float dt);
 
     private:
 
@@ -50,6 +48,7 @@ class PhysicsEngine {
 
         Vec3f computeForce(const std::vector<PhysicsObject*> scene, int i);
         Vec3f computeColoumbForce(const PhysicsObject* target, const PhysicsObject* emitter);
+        Vec3f computeGravitationalForce(const PhysicsObject* target, const PhysicsObject* emitter);
 };
 
 // State getState(PhysicsObject* p);
