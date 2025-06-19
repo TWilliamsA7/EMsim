@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SDL.h>
 
-#include "Vec3.h"
 #include "Renderer.h"
 
 int main(int argc, char* argv[]) {

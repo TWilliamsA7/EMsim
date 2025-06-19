@@ -30,6 +30,7 @@ class Camera {
         float pitch;
         float rotateSpeed;
         float panSpeed;
+        float zoomSpeed;
 
         float focalLength;
         float near;

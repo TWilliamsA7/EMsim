@@ -15,6 +15,7 @@ Camera::Camera() {
     this->pitch = 0.0f;
     this->rotateSpeed = 0.005f;
     this->panSpeed = 0.01f;
+    this->zoomSpeed = 0.1f;
     this->focalLength = 4.0f;
     this->near = 0.1f;
 
@@ -136,7 +137,7 @@ void Renderer3D::run() {
 
                 case SDL_MOUSEWHEEL:
                     // Zoom In/Out
-                    cam.distance *= (e.wheel.y > 0 ? 0.9f : 1.1f);
+                    cam.distance *= (e.wheel.y > 0 ? 1.f - cam.zoomSpeed : 1.f + cam.zoomSpeed);
                     cam.distance = std::max(cam.distance, 0.1f);
                     break;
 

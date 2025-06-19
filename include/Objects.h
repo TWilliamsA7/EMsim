@@ -27,19 +27,6 @@ class Object {
         std::vector<Triangle> tris;
 
         // Mechanics
-        
-        // Stored as units / sec
-        Vec3f velocity;
-        Vec3f acceleration;
-
-        // Stored in radians
-        Vec3f angularVelocity;
-        Vec3f angularAcceleration;
-        Vec3f rotation;
-
-        void updateRotation(Vec3f rot);
-        void Rotate();
-        void Translate();
 
 };
 
