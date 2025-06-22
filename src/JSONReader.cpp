@@ -68,6 +68,22 @@ Simulation::Simulation(char* filename) {
                     }
                     std::getline(JSON, line);
                 }
+            } else if (memberName.compare("lighting") == 0) {
+                std::getline(JSON, line);
+                while (line.find('}') == std::string::npos) {
+                    i = line.find(':');
+                    if (i != std::string::npos) {
+                        try {
+                            memberName = retrieveString(line, 0);
+                            setLightingParam(line, memberName, i);
+                        }
+                        catch (const std::exception& e) {
+                            loadedSuccess = false;
+                            throw;
+                        }
+                    }
+                    std::getline(JSON, line);
+                }
             } else if (memberName.compare("objects") == 0) {
                 // The closing bracket for the objects array will not be on the same line as an opening bracket
                 while (true) {
@@ -224,8 +240,6 @@ void Simulation::setWindowParam(std::string line, std::string memberName, int po
             this->height = static_cast<int>(retrieveFloat(line, pos));
         else if (memberName.compare("scale") == 0)
             this->scale = retrieveFloat(line, pos);
-        else if (memberName.compare("light_dir") == 0)
-            this->lightDir = retrieveVector(line);
         else
             throw 500;
     } catch (...) {
@@ -297,4 +311,27 @@ void Simulation::setObjectParam(ObjectModel& objM, std::string line, std::string
     } catch (...) {
         throw std::runtime_error("Error on: " + line);
     }
+}
+
+void Simulation::setLightingParam(std::string line, std::string memberName, int pos) {
+    try {
+
+        if (memberName.compare("light_dir") == 0) 
+            this->lightDir = retrieveVector(line);
+        else if (memberName.compare("ambient") == 0)
+            this->ambient = retrieveFloat(line, pos);
+        else if (memberName.compare("diff_weight") == 0)
+            this->diffWeight = retrieveFloat(line, pos);
+        else if (memberName.compare("spec_weight") == 0)
+            this->specWeight = retrieveFloat(line, pos);
+        else if (memberName.compare("shininess") == 0)
+            this->shininess = retrieveFloat(line, pos);
+        else if (memberName.compare("gamma") == 0)
+            this->gamma = retrieveFloat(line, pos);
+        else
+            throw 500;
+    } catch (...) {
+        throw std::runtime_error("Error on: " + line);
+    }
+    
 }

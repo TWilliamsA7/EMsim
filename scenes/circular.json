@@ -4,8 +4,7 @@
     "window": {
         "width": 800,
         "height": 600,
-        "scale": 100,
-        "light_dir": [-1, -1, -0.5]
+        "scale": 100
     },
 
     "camera": {
@@ -15,6 +14,15 @@
         "zoom_speed": 0.1,
         "focal_length": 4.0,
         "near": 0.1
+    },
+
+    "lighting": {
+        "light_dir": [-1, -1, -0.5],
+        "ambient": 0.0,
+        "diff_weight": 0.6,
+        "spec_weight": 0.2,
+        "shininess": 1,
+        "gamma": 3.2
     },
 
     "objects": [

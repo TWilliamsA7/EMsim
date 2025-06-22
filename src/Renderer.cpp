@@ -66,7 +66,7 @@ void Camera::computeVectors() {
                         RENDERER FUNCTIONS
 ********************************************************************/
 
-// Initialize renderer window with dimensions width x height
+// Initialize renderer window with dimensions Simulation parameters
 Renderer3D::Renderer3D(Simulation* sim) {
     // Initialize Video
     SDL_Init(SDL_INIT_VIDEO);
@@ -104,6 +104,12 @@ Renderer3D::Renderer3D(Simulation* sim) {
 
     this->cam = Camera();
     this->lightDir = sim->lightDir.normalize();
+    this->ambient = sim->ambient;
+    this->diffWeight = sim->diffWeight;
+    this->specWeight = sim->specWeight;
+    this->shininess = sim->shininess;
+    this->gamma = sim->gamma;
+
     this->scale = sim->scale;
     this->sim = sim;
 }
@@ -428,17 +434,13 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
                 Vec3f N = vertexNormals[vi];
                 Vec3f P = obj->vertices[vi];
 
-                float ambient = 0.10f;
                 float diff = 0.5f * std::max(0.0f, N.dot(lightDir)) + 0.5f;
                 Vec3f V = (cam.position() - P).normalize();
                 Vec3f H = (lightDir + V).normalize();
-                float spec = std::pow(std::max(0.0f, N.dot(H)), 1);
-                float diffWeight = 0.8f, specWeight = 0.2f;
+                float spec = std::pow(std::max(0.0f, N.dot(H)), shininess);
                 float intensity = ambient + diffWeight * diff + specWeight * spec;
                 intensity = (intensity < 0) ? 0 : intensity;
                 intensity = (intensity > 1) ? 1 : intensity;
-
-                float gamma = 3.2f;
 
                 SDL_Color color = {
                     static_cast<Uint8>(obj->color.r * std::pow(intensity, 1.0f/gamma)),

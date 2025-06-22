@@ -52,7 +52,8 @@ class Simulation {
     void setWindowParam(std::string line, std::string memberName, int pos);
     void setCameraParam(std::string line, std::string memberName, int pos);
     void setObjectParam(ObjectModel& objM, std::string line, std::string memberName, int pos);
-    
+    void setLightingParam(std::string line, std::string memberName, int pos);
+
     public:
         Simulation(char* filename);
         void displaySim();
@@ -65,7 +66,6 @@ class Simulation {
         int width;
         int height;
         float scale;
-        Vec3f lightDir;
         
         // Camera Members
         float distance;
@@ -74,6 +74,14 @@ class Simulation {
         float zoomSpeed;
         float focalLength;
         float near;
+        
+        // Lighting Members
+        Vec3f lightDir;
+        float ambient;
+        float diffWeight;
+        float specWeight;
+        float shininess;
+        float gamma;
         
         // Objects
         std::vector<ObjectModel> objModels;

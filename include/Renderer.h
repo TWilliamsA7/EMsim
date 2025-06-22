@@ -73,7 +73,13 @@ class Renderer3D {
         int width, height;
         float scale;
         
+        // Lighting/Shading 
         Vec3f lightDir;
+        float ambient;
+        float diffWeight;
+        float specWeight;
+        float shininess;
+        float gamma;
         
         // Holds all objects of the scene
         std::vector<PhysicsObject*> scene;
