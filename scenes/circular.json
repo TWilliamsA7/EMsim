@@ -1,5 +1,5 @@
 {
-    "name": "Example Scene",
+    "name": "Circular Motion: Gravitational",
     
     "window": {
         "width": 800,
@@ -21,7 +21,7 @@
         {
             "name": "s1",
             "shape": "sphere",
-            "center": [5, 0, 0],
+            "center": [0, 0, 0],
             "radius": 1,
             "color": [255, 40, 40, 255],
             "wireframe": false,
@@ -29,35 +29,21 @@
             "charge": 0,
             "initial_velocity": [0, 0, 0],
             "initial_acceleration": [0, 0, 0],
-            "initial_angular_velocity": [0, 0, 0],
+            "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
         },
         {
             "name": "s2",
             "shape": "sphere",
-            "center": [-5, 0, 0],
+            "center": [-8, 0, 0],
             "radius": 1,
             "color": [40, 255, 40, 255],
             "wireframe": false,
-            "mass": 1e10,
+            "mass": 0.3,
             "charge": 0,
-            "initial_velocity": [-1, 0, 0],
+            "initial_velocity": [0, 0, 3.9],
             "initial_acceleration": [0, 0, 0],
-            "initial_angular_velocity": [0, 0, 0],
-            "initial_angular_acceleration": [0, 0, 0]
-        },
-        {
-            "name": "s3",
-            "shape": "sphere",
-            "center": [0, 0, -5],
-            "radius": 1,
-            "color": [98, 155, 212, 255],
-            "wireframe": true,
-            "mass": 1e11,
-            "charge": 0,
-            "initial_velocity": [0, 0, -2],
-            "initial_acceleration": [0, 0, 0],
-            "initial_angular_velocity": [0, 0, 0],
+            "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
         }
     ]
