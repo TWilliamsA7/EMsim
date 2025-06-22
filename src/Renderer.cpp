@@ -424,30 +424,26 @@ void Renderer3D::geometryObjectFill(const Object* obj) {
             for (int i = 0; i < 3; i++) {
 
                 int vi = tri.v[i];
-                Vec3f imm = worldToCam(vertexNormals[vi]).normalize();
 
-                // Testing zone for shading
+                Vec3f N = vertexNormals[vi];
+                Vec3f P = obj->vertices[vi];
 
-                float hl = 0.5f * imm.dot(lightDir_cam) + 0.5f;
+                float ambient = 0.10f;
+                float diff = 0.5f * std::max(0.0f, N.dot(lightDir)) + 0.5f;
+                Vec3f V = (cam.position() - P).normalize();
+                Vec3f H = (lightDir + V).normalize();
+                float spec = std::pow(std::max(0.0f, N.dot(H)), 1);
+                float diffWeight = 0.8f, specWeight = 0.2f;
+                float intensity = ambient + diffWeight * diff + specWeight * spec;
+                intensity = (intensity < 0) ? 0 : intensity;
+                intensity = (intensity > 1) ? 1 : intensity;
 
-                Vec3f V = (cam.camPos - t[i]).normalize();
-                Vec3f H = (lightDir_cam + V).normalize();
-                float specular = powf(std::max(0.0f, imm.dot(H)), 16);
-
-                float ambient = 0.28f;
-                float diffWeight = 0.27f;
-                float specWeight = 0.48f;
-
-                float diff = ambient + diffWeight * hl + specWeight * specular;
-
-                //float diff = 0.4f + 0.3f * std::max(0.0f, imm.dot(lightDir_cam));
-                diff = std::min(1.0f, diff);
-                if (diff < 0) diff = 0.0f;
+                float gamma = 3.2f;
 
                 SDL_Color color = {
-                    static_cast<Uint8>(obj->color.r * diff),
-                    static_cast<Uint8>(obj->color.g * diff),
-                    static_cast<Uint8>(obj->color.b * diff),
+                    static_cast<Uint8>(obj->color.r * std::pow(intensity, 1.0f/gamma)),
+                    static_cast<Uint8>(obj->color.g * std::pow(intensity, 1.0f/gamma)),
+                    static_cast<Uint8>(obj->color.b * std::pow(intensity, 1.0f/gamma)),
                     255
                 };
 

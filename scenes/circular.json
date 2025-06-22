@@ -5,7 +5,7 @@
         "width": 800,
         "height": 600,
         "scale": 100,
-        "light_dir": [0, 1, 1]
+        "light_dir": [-1, -1, -0.5]
     },
 
     "camera": {
@@ -29,8 +29,8 @@
             "charge": 0,
             "initial_velocity": [0, 0, 0],
             "initial_acceleration": [0, 0, 0],
-            "initial_angular_velocity": [0, 2, 0],
-            "initial_angular_acceleration": [0, 0, 0]
+            "initial_angular_velocity": [0, 0, 0],
+            "initial_angular_acceleration": [0, 0.2, 0]
         },
         {
             "name": "s2",
