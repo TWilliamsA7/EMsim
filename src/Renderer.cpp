@@ -84,6 +84,9 @@ Renderer3D::Renderer3D(Simulation* sim) {
                             sim->width, sim->height, 
                             SDL_WINDOW_SHOWN);
 
+    this->width = sim->width;
+    this->height = sim->height;
+
     if (!window) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         SDL_Quit();
@@ -199,11 +202,11 @@ void Renderer3D::run() {
 
 // Load objects of the scene into the Renderer
 void Renderer3D::loadScene() {
-    // PhysicsObject* hold = nullptr;
-    // for (auto objM : sim->objModels) {
-    //     hold = loadObjectModel(objM);
-    //     scene.push_back(hold);
-    // }
+    PhysicsObject* hold = nullptr;
+    for (auto objM : sim->objModels) {
+        hold = loadObjectModel(objM);
+        scene.push_back(hold);
+    }
 }
 
 PhysicsObject* Renderer3D::loadObjectModel(ObjectModel objM) {
@@ -243,12 +246,12 @@ void Renderer3D::renderFrame() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Clear to black
     SDL_RenderClear(renderer);
     
-    // Sort scene array by depth against camera
-    // sortScene(0, static_cast<int>(scene.size() - 1));
+    //Sort scene array by depth against camera
+    sortScene(0, static_cast<int>(scene.size() - 1));
     
-    // for (PhysicsObject* Pobj : scene) {
-    //     drawObject(Pobj->obj);
-    // }
+    for (PhysicsObject* Pobj : scene) {
+        drawObject(Pobj->obj);
+    }
     
     // Draw a point representing the origin
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points
