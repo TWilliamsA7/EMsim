@@ -7,17 +7,39 @@
 ********************************************************************/
 
 // Initialize Camera Settings
-Camera::Camera() {
+Camera::Camera(Simulation* sim) {
     this->target = Vec3f();
 
+    // this->distance = sim->distance;
+    // this->yaw = 0.0f;
+    // this->pitch = 0.0f;
+    // this->rotateSpeed = sim->rotateSpeed;
+    // this->panSpeed = sim->panSpeed;
+    // this->zoomSpeed = sim->zoomSpeed;
+    // this->focalLength = sim->focalLength;
+    // this->near = sim->near;
     this->distance = 5.0f;
     this->yaw = 0.0f;
     this->pitch = 0.0f;
     this->rotateSpeed = 0.005f;
     this->panSpeed = 0.01f;
     this->zoomSpeed = 0.1f;
-    this->focalLength = 4.0f;
-    this->near = 0.1f;
+    this->focalLength = 4.0;
+    this->near = 0.1;
+
+    this->computeVectors();
+}
+
+Camera::Camera() {
+    this->target = Vec3f();
+    this->distance = 5.0f;
+    this->yaw = 0.0f;
+    this->pitch = 0.0f;
+    this->rotateSpeed = 0.005f;
+    this->panSpeed = 0.01f;
+    this->zoomSpeed = 0.1f;
+    this->focalLength = 4.0;
+    this->near = 0.1;
 
     this->computeVectors();
 }
@@ -45,7 +67,7 @@ void Camera::computeVectors() {
 ********************************************************************/
 
 // Initialize renderer window with dimensions width x height
-Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
+Renderer3D::Renderer3D(Simulation* sim) {
     // Initialize Video
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -56,10 +78,10 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
     }
 
     // Create window
-    window = SDL_CreateWindow("Viewport",
+    window = SDL_CreateWindow(sim->name.c_str(),
                             SDL_WINDOWPOS_CENTERED, 
                             SDL_WINDOWPOS_CENTERED, 
-                            width, height, 
+                            sim->width, sim->height, 
                             SDL_WINDOW_SHOWN);
 
     if (!window) {
@@ -77,11 +99,10 @@ Renderer3D::Renderer3D(int width, int height) : width(width), height(height) {
         std::exit(EXIT_FAILURE);
     }
 
-
-    // Initialize Camera Object and Scale
-    cam = Camera();
-    lightDir = Vec3f(0, 1, 1).normalize();
-    scale = 100.0f;
+    this->cam = Camera();
+    this->lightDir = sim->lightDir.normalize();
+    this->scale = sim->scale;
+    this->sim = sim;
 }
 
 // Called at program termination to clean up
@@ -93,8 +114,10 @@ Renderer3D::~Renderer3D() {
     SDL_Quit();
 
     // Deallocate dynamically allocated scene objects
-    for (PhysicsObject* obj : scene) 
-        delete obj;
+    for (PhysicsObject* Pobj : scene) {
+        delete Pobj->obj;
+        delete Pobj;
+    }
 
 }
 
@@ -176,19 +199,41 @@ void Renderer3D::run() {
 
 // Load objects of the scene into the Renderer
 void Renderer3D::loadScene() {
-
-    SDL_Color red = {255, 40, 40, 255};
-    SDL_Color blue = {40, 40, 255, 255};
-    SDL_Color green = {40, 255, 40, 255};
-
-    PhysicsObject* s1 = new PhysicsObject(new Sphere(Vec3f(5, 0, 0), 1, red, false), 1e12, 0);
-    PhysicsObject* s2 = new PhysicsObject(new Sphere(Vec3f(-5, 0, 0), 1, green, false), 1e10, 0);
-    s2->velocity = Vec3f(-1, 0, 0);
-
-    scene.push_back(s1);
-    scene.push_back(s2);
+    // PhysicsObject* hold = nullptr;
+    // for (auto objM : sim->objModels) {
+    //     hold = loadObjectModel(objM);
+    //     scene.push_back(hold);
+    // }
 }
 
+PhysicsObject* Renderer3D::loadObjectModel(ObjectModel objM) {
+    Object* obj = nullptr;
+
+    SDL_Color color = {objM.color.r, objM.color.g, objM.color.b, objM.color.a};
+
+    switch (objM.shape)
+    {
+        case ObjectModel::Shape::SPHERE:
+            obj = new Sphere(objM.center, objM.radius, color, objM.wireframe);
+            break;
+        case ObjectModel::Shape::ICOSAHEDRON:
+            obj = new Icosahedron(objM.center, objM.radius, color, objM.wireframe);
+            break;
+        case ObjectModel::Shape::TETRAHEDRON:
+            obj = new Tetrahedron(objM.center, objM.radius, color, objM.wireframe);
+            break;
+        default: // default to a sphere
+            obj = new Sphere(objM.center, objM.radius, color, objM.wireframe);
+    }
+
+    PhysicsObject* hold = new PhysicsObject(obj, objM.mass, objM.charge);
+    hold->velocity = objM.initVelocity;
+    hold->acceleration = objM.initAccel;
+    hold->angularVelocity = objM.initAngVelocity;
+    hold->angularAcceleration = objM.initAngAccel;
+
+    return hold;
+}
 
 // RENDER FUNCTIONS
 
@@ -199,11 +244,11 @@ void Renderer3D::renderFrame() {
     SDL_RenderClear(renderer);
     
     // Sort scene array by depth against camera
-    sortScene(0, static_cast<int>(scene.size() - 1));
+    // sortScene(0, static_cast<int>(scene.size() - 1));
     
-    for (PhysicsObject* Pobj : scene) {
-        drawObject(Pobj->obj);
-    }
+    // for (PhysicsObject* Pobj : scene) {
+    //     drawObject(Pobj->obj);
+    // }
     
     // Draw a point representing the origin
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);  // White points

@@ -8,6 +8,7 @@
 #include "Vec3.h"
 #include "PhysicsEngine.h"
 #include "Objects.h"
+#include "JSONReader.h"
 
 // NXN refers to both unmapped and describes the number of mapped keys
 enum class Key {
@@ -47,6 +48,7 @@ class Camera {
         Vec3f up;
 
         Camera();
+        Camera(Simulation* sim);
 
         Vec3f position() const;
 
@@ -59,12 +61,13 @@ class Renderer3D {
     public:
 
         // Class Constructors
-        Renderer3D(int width, int height);
+        Renderer3D(Simulation* sim);
         ~Renderer3D();
 
         void run();
         
     private:
+        Simulation* sim;
         SDL_Window* window;
         SDL_Renderer* renderer;
         int width, height;
@@ -82,6 +85,7 @@ class Renderer3D {
         
         // Initialization
         void loadScene();
+        PhysicsObject* loadObjectModel(ObjectModel objM);
 
         // Render current frame
         void renderFrame();

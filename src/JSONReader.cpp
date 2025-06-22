@@ -223,7 +223,7 @@ void Simulation::setWindowParam(std::string line, std::string memberName, int po
         else if (memberName.compare("height") == 0)
             this->height = static_cast<int>(retrieveFloat(line, pos));
         else if (memberName.compare("scale") == 0)
-            this->scale = static_cast<int>(retrieveFloat(line, pos));
+            this->scale = retrieveFloat(line, pos);
         else if (memberName.compare("light_dir") == 0)
             this->lightDir = retrieveVector(line);
         else

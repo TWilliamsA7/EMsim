@@ -2,7 +2,6 @@
 #include <SDL.h>
 
 #include "Renderer.h"
-#include "JSONReader.h"
 
 int main(int argc, char* argv[]) {
     
@@ -16,11 +15,13 @@ int main(int argc, char* argv[]) {
     Simulation* sim = nullptr;
     try {
         sim = new Simulation(argv[1]);
-    } catch (const std::exception& e) {
+    } 
+    catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << std::endl;
         delete sim;
         return 1;
-    } catch (...) {
+    } 
+    catch (...) {
         std::cerr << "An unknown error occurred while loading scene file..." << std::endl;
         delete sim;
         return 1;
@@ -32,10 +33,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // => process JSON file into Simulation class
-
-    // => pass map/class to renderer for usage
-    Renderer3D renderer(800, 600);
+    Renderer3D renderer(sim);
     renderer.run();
+    delete sim;
     return 0;
 }

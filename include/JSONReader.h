@@ -54,29 +54,29 @@ class Simulation {
     void setObjectParam(ObjectModel& objM, std::string line, std::string memberName, int pos);
     
     public:
-    Simulation(char* filename);
-    void displaySim();
-    bool loadedSuccess;
-    
-    // Name of the simulation
-    std::string name;
-    
-    // Window Members
-    int width;
-    int height;
-    int scale;
-    Vec3f lightDir;
-    
-    // Camera Members
-    float distance;
-    float rotateSpeed;
-    float panSpeed;
-    float zoomSpeed;
-    float focalLength;
-    float near;
-    
-    // Objects
-    std::vector<ObjectModel> objModels;
+        Simulation(char* filename);
+        void displaySim();
+        bool loadedSuccess;
+        
+        // Name of the simulation
+        std::string name;
+        
+        // Window Members
+        int width;
+        int height;
+        float scale;
+        Vec3f lightDir;
+        
+        // Camera Members
+        float distance;
+        float rotateSpeed;
+        float panSpeed;
+        float zoomSpeed;
+        float focalLength;
+        float near;
+        
+        // Objects
+        std::vector<ObjectModel> objModels;
 };
 
 #endif // __JSONREADER_H__
