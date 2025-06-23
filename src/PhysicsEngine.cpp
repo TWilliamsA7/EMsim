@@ -50,7 +50,7 @@ void PhysicsEngine::eulerRotate(const std::vector<PhysicsObject*> scene, float d
         Pobj->Rotate(dt);
 }
 
-void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, float t, float dt) {
+void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, float t, float dt) {
     int N = scene.size();
     // For each particle, we’ll compute k1..k4
     std::vector<State>  y0(N), k1(N), k2(N), k3(N), k4(N);
@@ -63,7 +63,7 @@ void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, fl
 
     // 2) k1 = f(t, y0)
     for (int i = 0; i < N; ++i) {
-        auto d = evaluate(scene, i, y0[i], t);
+        auto d = evaluate(scene, fields, i, y0[i], t);
         k1[i] = { d.r, d.v };
     }
 
@@ -72,7 +72,7 @@ void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, fl
         tempY[i] = stateAdd(y0[i], k1[i], 0.5f);
     }
     for (int i = 0; i < N; ++i) {
-        auto d = evaluate(scene, i, tempY[i], t + dt*0.5f);
+        auto d = evaluate(scene, fields, i, tempY[i], t + dt*0.5f);
         k2[i] = { d.r, d.v };
     }
 
@@ -81,7 +81,7 @@ void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, fl
         tempY[i] = stateAdd(y0[i], k2[i], 0.5f);
     }
     for (int i = 0; i < N; ++i) {
-        auto d = evaluate(scene, i, tempY[i], t + dt*0.5f);
+        auto d = evaluate(scene, fields, i, tempY[i], t + dt*0.5f);
         k3[i] = { d.r, d.v };
     }
 
@@ -90,7 +90,7 @@ void PhysicsEngine::integrateForward(const std::vector<PhysicsObject*> scene, fl
         tempY[i] = stateAdd(y0[i], k3[i], 1.0f);
     }
     for (int i = 0; i < N; ++i) {
-        auto d = evaluate(scene, i, tempY[i], t + dt);
+        auto d = evaluate(scene, fields, i, tempY[i], t + dt);
         k4[i] = { d.r, d.v };
     }
 
@@ -115,12 +115,12 @@ PhysicsEngine::State PhysicsEngine::stateAdd(const State& s, const State& d, flo
     return { s.r + (d.r * dt), s.v + (d.v * dt) };
 }
 
-PhysicsEngine::State PhysicsEngine::evaluate(const std::vector<PhysicsObject*> scene, int i, const State& s, float t) {
-    Vec3f F = computeForce(scene, i);
+PhysicsEngine::State PhysicsEngine::evaluate(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, int i, const State& s, float t) {
+    Vec3f F = computeForce(scene, fields, i);
     return { s.v, F * (1.f / scene[i]->mass) };
 }
 
-Vec3f PhysicsEngine::computeForce(const std::vector<PhysicsObject*> scene, int i) {
+Vec3f PhysicsEngine::computeForce(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, int i) {
     int N = scene.size();
 
     Vec3f force = Vec3f();
@@ -129,6 +129,20 @@ Vec3f PhysicsEngine::computeForce(const std::vector<PhysicsObject*> scene, int i
         force = force + computeColoumbForce(scene[i], scene[j]);
         force = force + computeGravitationalForce(scene[i], scene[j]);
     }
+
+    N = fields.size();
+    for (int j = 0; j < N; j++) {
+        Field f = fields.at(j);
+        switch (f.type)
+        {
+            case Field::Type::Electric:
+                force = force + computeElectricFieldForce(scene[i], f);
+                break;
+            case Field::Type::Magnetic:
+                break;
+        }
+    }
+
     return force;
 }
 
@@ -146,4 +160,9 @@ Vec3f PhysicsEngine::computeGravitationalForce(const PhysicsObject* target, cons
     float dist = r.magnitude();
     scale /= dist * dist * dist;
     return r * scale;
+}
+
+Vec3f PhysicsEngine::computeElectricFieldForce(const PhysicsObject* target, const Field E) {
+    float mag = E.strength * target->charge;
+    return E.direction * mag;
 }

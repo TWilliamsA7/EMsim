@@ -115,6 +115,37 @@ Simulation::Simulation(char* filename) {
                         this->objModels.push_back(objM);
                     }
                 }
+            } else if (memberName.compare("fields") == 0) {
+                // The closing bracket for the objects array will not be on the same line as an opening bracket
+                while (true) {
+
+                    if (line.find(']') != std::string::npos)
+                        if (line.find('[') == std::string::npos)
+                            break;
+
+                    std::getline(JSON, line);
+                    // Find start of one object
+                    if (line.find('{') != std::string::npos) {
+                        // Until we reach the end of the object
+                        FieldModel fieldM;
+                        std::getline(JSON, line);
+                        while (line.find('}') == std::string::npos) {
+                            i = line.find(':');
+                            if (i != std::string::npos) {
+                                try {
+                                    memberName = retrieveString(line, 0);
+                                    setFieldParam(fieldM, line, memberName, i);
+                                }
+                                catch (const std::exception& e) {
+                                    loadedSuccess = false;
+                                    throw;
+                                }
+                            }
+                            std::getline(JSON, line);
+                        }
+                        this->fieldModels.push_back(fieldM);
+                    }
+                }
             } else {
                 std::cerr << "Invalid Parameter Name Given!:\n" + line << std::endl;
                 loadedSuccess = false;
@@ -334,4 +365,28 @@ void Simulation::setLightingParam(std::string line, std::string memberName, int 
         throw std::runtime_error("Error on: " + line);
     }
     
+}
+
+void Simulation::setFieldParam(FieldModel& fieldM, std::string line, std::string memberName, int pos) {
+    try {
+        if (memberName.compare("name") == 0) 
+            fieldM.name.assign(retrieveString(line, pos));
+        else if (memberName.compare("type") == 0) {
+            std::string _type = retrieveString(line, pos);
+            if (_type.compare("electric") == 0)
+                fieldM.type = FieldModel::Type::Electric;
+            else if (_type.compare("magentic") == 0)
+                fieldM.type = FieldModel::Type::Magnetic;
+            else
+                throw 500;
+        }
+        else if (memberName.compare("direction") == 0)
+            fieldM.direction = retrieveVector(line);
+        else if (memberName.compare("strength") == 0)
+            fieldM.strength = retrieveFloat(line, pos);
+        else
+            throw 500;
+    } catch (...) {
+        throw std::runtime_error("Error on: " + line);
+    }
 }

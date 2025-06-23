@@ -198,7 +198,7 @@ void Renderer3D::run() {
         // Recompute camera vectors before each frame
         cam.computeVectors();
 
-        phyeng.integrateForward(scene, simTime, dt);
+        phyeng.integrateForward(scene, fields, simTime, dt);
         phyeng.eulerRotate(scene, dt);
         simTime += dt;
         renderFrame();
@@ -213,6 +213,10 @@ void Renderer3D::loadScene() {
         hold = loadObjectModel(objM);
         scene.push_back(hold);
     }
+
+    for (auto fieldM: sim->fieldModels) 
+        fields.push_back(loadFieldModel(fieldM));
+        
 }
 
 PhysicsObject* Renderer3D::loadObjectModel(ObjectModel objM) {
@@ -242,6 +246,21 @@ PhysicsObject* Renderer3D::loadObjectModel(ObjectModel objM) {
     hold->angularAcceleration = objM.initAngAccel;
 
     return hold;
+}
+
+Field Renderer3D::loadFieldModel(FieldModel fieldM) {
+    Field::Type _type;
+    switch (fieldM.type)
+    {
+        case FieldModel::Type::Electric:
+            _type = Field::Type::Electric;
+            break;
+        case FieldModel::Type::Magnetic:
+            _type = Field::Type::Magnetic;
+            break;
+    }
+
+    return Field(_type, fieldM.strength, fieldM.direction);
 }
 
 // RENDER FUNCTIONS

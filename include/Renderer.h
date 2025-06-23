@@ -83,6 +83,7 @@ class Renderer3D {
         
         // Holds all objects of the scene
         std::vector<PhysicsObject*> scene;
+        std::vector<Field> fields;
         Camera cam;
         std::vector<bool> key_map;
 
@@ -92,6 +93,7 @@ class Renderer3D {
         // Initialization
         void loadScene();
         PhysicsObject* loadObjectModel(ObjectModel objM);
+        Field loadFieldModel(FieldModel fieldM);
 
         // Render current frame
         void renderFrame();

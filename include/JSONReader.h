@@ -40,6 +40,18 @@ class ObjectModel {
         Vec3f initAngAccel;
 };
 
+struct FieldModel {
+    enum Type {
+        Electric,
+        Magnetic
+    };
+
+    std::string name;
+    Type type;
+    Vec3f direction;
+    float strength;
+};
+
 class Simulation {
 
     
@@ -53,6 +65,7 @@ class Simulation {
     void setCameraParam(std::string line, std::string memberName, int pos);
     void setObjectParam(ObjectModel& objM, std::string line, std::string memberName, int pos);
     void setLightingParam(std::string line, std::string memberName, int pos);
+    void setFieldParam(FieldModel& fieldM, std::string line, std::string memberName, int pos);
 
     public:
         Simulation(char* filename);
@@ -85,6 +98,7 @@ class Simulation {
         
         // Objects
         std::vector<ObjectModel> objModels;
+        std::vector<FieldModel> fieldModels;
 };
 
 #endif // __JSONREADER_H__

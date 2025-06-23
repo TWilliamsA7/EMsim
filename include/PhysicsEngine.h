@@ -30,9 +30,22 @@ class PhysicsObject {
     
 };
 
+class Field {
+    public:
+        enum Type {
+            Electric,
+            Magnetic
+        };
+
+        Type type;
+        Vec3f direction;
+        float strength;
+        Field(Type t, float str, Vec3f dir) : type(t), direction(dir.normalize()), strength(str) {};
+};
+
 class PhysicsEngine {
     public:
-        void integrateForward(const std::vector<PhysicsObject*> scene, float t, float dt);
+        void integrateForward(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, float t, float dt);
         void eulerRotate(const std::vector<PhysicsObject*> scene, float dt);
 
     private:
@@ -44,11 +57,12 @@ class PhysicsEngine {
 
         State getState(const PhysicsObject* p);
         State stateAdd(const State& s, const State& d, float dt);
-        State evaluate(const std::vector<PhysicsObject*> scene, int i, const State& s, float t);
+        State evaluate(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, int i, const State& s, float t);
 
-        Vec3f computeForce(const std::vector<PhysicsObject*> scene, int i);
+        Vec3f computeForce(const std::vector<PhysicsObject*> scene, const std::vector<Field> fields, int i);
         Vec3f computeColoumbForce(const PhysicsObject* target, const PhysicsObject* emitter);
         Vec3f computeGravitationalForce(const PhysicsObject* target, const PhysicsObject* emitter);
+        Vec3f computeElectricFieldForce(const PhysicsObject* target, const Field E);
 };
 
 // State getState(PhysicsObject* p);
