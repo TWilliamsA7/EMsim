@@ -139,6 +139,7 @@ Vec3f PhysicsEngine::computeForce(const std::vector<PhysicsObject*> scene, const
                 force = force + computeElectricFieldForce(scene[i], f);
                 break;
             case Field::Type::Magnetic:
+                force = force + computeMagneticFieldForce(scene[i], f);
                 break;
         }
     }
@@ -165,4 +166,10 @@ Vec3f PhysicsEngine::computeGravitationalForce(const PhysicsObject* target, cons
 Vec3f PhysicsEngine::computeElectricFieldForce(const PhysicsObject* target, const Field E) {
     float mag = E.strength * target->charge;
     return E.direction * mag;
+}
+
+Vec3f PhysicsEngine::computeMagneticFieldForce(const PhysicsObject* target, const Field B) {
+    Vec3f qv = target->velocity * target->charge;
+    Vec3f Bvect = B.direction * B.strength;
+    return qv.cross(Bvect);
 }

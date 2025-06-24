@@ -49,11 +49,25 @@
             "wireframe": false,
             "mass": 1,
             "charge": 0.0001,
-            "initial_velocity": [7, 0, 0],
+            "initial_velocity": [0, 0, 0],
             "initial_acceleration": [2, 0, 0],
             "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
         }
-    ]
+    ],
 
+    "fields": [
+        {
+            "name": "B1",
+            "type": "magnetic",
+            "direction": [0, -1, 0],
+            "strength": 20000
+        },
+        {
+            "name": "E1",
+            "type": "electric",
+            "direction": [1, 2, 0],
+            "strength": 4000
+        }
+    ]
 }

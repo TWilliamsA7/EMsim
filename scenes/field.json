@@ -29,13 +29,13 @@
         {
             "name": "s1",
             "shape": "sphere",
-            "center": [5, 0, 0],
+            "center": [0, 0, 0],
             "radius": 1,
             "color": [255, 40, 40, 255],
             "wireframe": false,
             "mass": 1,
             "charge": -0.00005,
-            "initial_velocity": [0, 0, 0],
+            "initial_velocity": [-10, 1, 0],
             "initial_acceleration": [0, 0, 0],
             "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
@@ -43,25 +43,25 @@
         {
             "name": "s2",
             "shape": "sphere",
-            "center": [-6, 0, 0],
+            "center": [0, -5, 0],
             "radius": 1,
-            "color": [40, 255, 40, 255],
+            "color": [255, 40, 40, 255],
             "wireframe": false,
-            "mass": 1,
-            "charge": 0.00005,
+            "mass": 1e12,
+            "charge": -0.00005,
             "initial_velocity": [0, 0, 0],
-            "initial_acceleration": [2, 0, 0],
+            "initial_acceleration": [0, 0, 0],
             "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
-        }
+        } 
     ],
 
     "fields": [
         {
-            "name": "E1",
-            "type": "electric",
+            "name": "B1",
+            "type": "magnetic",
             "direction": [0, -1, 0],
-            "strength": 4000
+            "strength": 20000
         }
     ]
 

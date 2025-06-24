@@ -63,6 +63,7 @@ class PhysicsEngine {
         Vec3f computeColoumbForce(const PhysicsObject* target, const PhysicsObject* emitter);
         Vec3f computeGravitationalForce(const PhysicsObject* target, const PhysicsObject* emitter);
         Vec3f computeElectricFieldForce(const PhysicsObject* target, const Field E);
+        Vec3f computeMagneticFieldForce(const PhysicsObject* target, const Field B);
 };
 
 // State getState(PhysicsObject* p);

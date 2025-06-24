@@ -375,7 +375,7 @@ void Simulation::setFieldParam(FieldModel& fieldM, std::string line, std::string
             std::string _type = retrieveString(line, pos);
             if (_type.compare("electric") == 0)
                 fieldM.type = FieldModel::Type::Electric;
-            else if (_type.compare("magentic") == 0)
+            else if (_type.compare("magnetic") == 0)
                 fieldM.type = FieldModel::Type::Magnetic;
             else
                 throw 500;
