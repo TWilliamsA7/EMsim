@@ -56,4 +56,9 @@ class Sphere : public Object {
         int getMidpoint(int i1, int i2);
 };
 
+class Cube : public Object {
+    public:
+        Cube(Vec3f, float radius, SDL_Color color, bool wireframe);
+};
+
 #endif // __OBJECTS_H__

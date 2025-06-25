@@ -235,6 +235,9 @@ PhysicsObject* Renderer3D::loadObjectModel(ObjectModel objM) {
         case ObjectModel::Shape::TETRAHEDRON:
             obj = new Tetrahedron(objM.center, objM.radius, color, objM.wireframe);
             break;
+        case ObjectModel::Shape::CUBE:
+            obj = new Cube(objM.center, objM.radius, color, objM.wireframe);
+            break;
         default: // default to a sphere
             obj = new Sphere(objM.center, objM.radius, color, objM.wireframe);
     }

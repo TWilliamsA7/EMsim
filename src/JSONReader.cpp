@@ -314,6 +314,8 @@ void Simulation::setObjectParam(ObjectModel& objM, std::string line, std::string
                 objM.shape = ObjectModel::Shape::TETRAHEDRON;
             else if (_shape.compare("icosahedron") == 0)
                 objM.shape = ObjectModel::Shape::ICOSAHEDRON;
+            else if (_shape.compare("cube") == 0)
+                objM.shape = ObjectModel::Shape::CUBE;
             else
                 throw 500;
         }

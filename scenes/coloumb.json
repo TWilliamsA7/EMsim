@@ -64,10 +64,10 @@
             "strength": 20000
         },
         {
-            "name": "E1",
+            "name": "B2",
             "type": "electric",
-            "direction": [1, 2, 0],
-            "strength": 4000
+            "direction": [-0.5, 1, 0],
+            "strength": 40000
         }
     ]
 }

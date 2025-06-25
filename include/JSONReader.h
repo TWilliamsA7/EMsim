@@ -12,6 +12,7 @@ class ObjectModel {
             SPHERE,
             TETRAHEDRON,
             ICOSAHEDRON,
+            CUBE
         };
 
         struct Color {

@@ -117,3 +117,41 @@ int Sphere::getMidpoint(int i1, int i2) {
     midPointIndex[key] = newIndex;
     return newIndex;
 }
+
+Cube::Cube(Vec3f center, float radius, SDL_Color color, bool wireframe) {
+    this->center = center;
+    this->wireframe = wireframe;
+    this->color = color;
+
+    // Top Face
+    vertices.push_back(Vec3f(radius, radius, radius)); // TFR
+    vertices.push_back(Vec3f(-radius, radius, radius)); // TFL
+    vertices.push_back(Vec3f(-radius, radius, -radius)); // TBL
+    vertices.push_back(Vec3f(radius, radius, -radius)); // TBR
+
+    // Bottom Face
+    vertices.push_back(Vec3f(radius, -radius, radius)); // BFR
+    vertices.push_back(Vec3f(-radius, -radius, radius)); // BFL
+    vertices.push_back(Vec3f(-radius, -radius, -radius)); // BBL
+    vertices.push_back(Vec3f(radius, -radius, -radius)); // BBR
+
+    // Top Face
+    tris.push_back(Triangle(0, 1, 2));
+    tris.push_back(Triangle(2, 3, 0));
+
+    tris.push_back(Triangle(4, 0, 1));
+    tris.push_back(Triangle(4, 0, 3));
+
+    tris.push_back(Triangle(5, 4, 1));
+    tris.push_back(Triangle(5, 1, 2));
+
+    tris.push_back(Triangle(6, 5, 2));
+    tris.push_back(Triangle(6, 2, 3));
+
+    tris.push_back(Triangle(7, 6, 3));
+    tris.push_back(Triangle(7, 4, 3));
+
+    // Bottom Face
+    tris.push_back(Triangle(4, 5, 6));
+    tris.push_back(Triangle(6, 7, 4));
+}
