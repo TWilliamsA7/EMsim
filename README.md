@@ -42,7 +42,7 @@ cd build
     - Following the provided format, any number of scenes can be generated quickly without having to touch the  code
 - **Full Range Customizable Camera** 🎥
     - Customize speed, FOV, and the window using the scene.json file
-- **Coulumb Force and Gravitational Force** 📍
+- **Coulomb Force and Gravitational Force** 📍
     - Define the mass and charge carried by objects and they will interact with each other through these forces
 - **Electromagnetic Fields**
     - Based on particle state and field direction, fields can be defined which also impact particle moetion
