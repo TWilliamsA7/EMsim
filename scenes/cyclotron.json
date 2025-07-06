@@ -1,0 +1,53 @@
+{
+  "name": "Cyclotron",
+  
+  "window": {
+    "width": 700,
+    "height": 700,
+    "scale": 120
+  },
+
+  "camera": {
+    "distance": 6.0,
+    "rotate_speed": 0.003,
+    "pan_speed": 0.02,
+    "zoom_speed": 0.1,
+    "focal_length": 2.5,
+    "near": 0.1
+  },
+
+  "lighting": {
+    "light_dir": [0, -1, -0.2],
+    "ambient": 0.2,
+    "diff_weight": 0.6,
+    "spec_weight": 0.2,
+    "shininess": 32,
+    "gamma": 2.2
+  },
+
+  "objects": [
+    {
+      "name": "Proton",
+      "shape": "sphere",
+      "center": [0, 0, 0],
+      "radius": 0.3,
+      "color": [255, 215, 0, 255],
+      "wireframe": false,
+      "mass": 1,
+      "charge": 0.0003,
+      "initial_velocity": [0, 2, 0],
+      "initial_acceleration": [0, 0, 0],
+      "initial_angular_velocity": [0, 0, 0],
+      "initial_angular_acceleration": [0, 0, 0]
+    }
+  ],
+
+  "fields": [
+    {
+      "name": "UniformMagnet",
+      "type": "magnetic",
+      "direction": [0, 0, 1],
+      "strength": 10000
+    }
+  ]
+}

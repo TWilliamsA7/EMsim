@@ -1,5 +1,5 @@
 {
-    "name": "Coloumb's Law Simulation",
+    "name": "Electric and Magnetic Field Simulation",
     
     "window": {
         "width": 800,
@@ -35,7 +35,7 @@
             "wireframe": false,
             "mass": 1,
             "charge": -0.00005,
-            "initial_velocity": [-10, 1, 0],
+            "initial_velocity": [10, 1, 0],
             "initial_acceleration": [0, 0, 0],
             "initial_angular_velocity": [0, 2, 0],
             "initial_angular_acceleration": [0, 0, 0]
@@ -43,9 +43,9 @@
         {
             "name": "s2",
             "shape": "sphere",
-            "center": [0, -5, 0],
+            "center": [5, 0, 0],
             "radius": 1,
-            "color": [255, 40, 40, 255],
+            "color": [9, 64, 38, 255],
             "wireframe": false,
             "mass": 1e12,
             "charge": -0.00005,
@@ -62,6 +62,12 @@
             "type": "magnetic",
             "direction": [0, -1, 0],
             "strength": 20000
+        },
+        {
+            "name": "E1",
+            "type": "electric",
+            "direction": [4, 1, 0],
+            "strength": 40000
         }
     ]
 

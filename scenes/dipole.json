@@ -1,0 +1,58 @@
+{
+  "name": "Oscillating Dipole",
+  
+  "window": {
+    "width": 800,
+    "height": 600,
+    "scale": 80
+  },
+
+  "camera": {
+    "distance": 8.0,
+    "rotate_speed": 0.004,
+    "pan_speed": 0.01,
+    "zoom_speed": 0.1,
+    "focal_length": 3.0,
+    "near": 0.1
+  },
+
+  "lighting": {
+    "light_dir": [-0.3, -1, -0.5],
+    "ambient": 0.15,
+    "diff_weight": 0.7,
+    "spec_weight": 0.3,
+    "shininess": 16,
+    "gamma": 2.2
+  },
+
+  "objects": [
+    {
+      "name": "Positive Charge",
+      "shape": "sphere",
+      "center": [2, 0, 0],
+      "radius": 0.5,
+      "color": [255, 150, 50, 255],
+      "wireframe": false,
+      "mass": 2,
+      "charge": 0.00002,
+      "initial_velocity": [0, 0.5, 0],
+      "initial_acceleration": [0, 0, 0],
+      "initial_angular_velocity": [0, 0, 0],
+      "initial_angular_acceleration": [0, 0, 0]
+    },
+    {
+      "name": "Negative Charge",
+      "shape": "sphere",
+      "center": [-2, 0, 0],
+      "radius": 0.5,
+      "color": [50, 150, 255, 255],
+      "wireframe": false,
+      "mass": 2,
+      "charge": -0.00002,
+      "initial_velocity": [0, -0.5, 0],
+      "initial_acceleration": [0, 0, 0],
+      "initial_angular_velocity": [0, 0, 0],
+      "initial_angular_acceleration": [0, 0, 0]
+    }
+  ]
+}
