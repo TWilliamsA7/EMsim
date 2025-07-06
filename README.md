@@ -40,7 +40,7 @@ cd build
 ## ▶ Features
 - **Define Scene Via JSON {}** 
     - Following the provided format, any number of scenes can be generated quickly without having to touch the  code
-- **Full Range Customizable Camera** 🎥
+- **Full Range Motion Customizable Camera** 🎥
     - Customize speed, FOV, and the window using the scene.json file
 - **Coulomb Force and Gravitational Force** 📍
     - Define the mass and charge carried by objects and they will interact with each other through these forces
